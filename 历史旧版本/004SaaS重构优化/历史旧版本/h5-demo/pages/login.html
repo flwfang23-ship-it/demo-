@@ -1,0 +1,58 @@
+<div class="page-container" id="loginPage">
+
+  <div class="page-header">
+    <h2>PC端登录页</h2>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:flex-start;">
+
+    <!-- 左侧：截图 -->
+    <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+      <img src="images/login.jpeg" alt="PC端登录页" style="width:100%;display:block;">
+    </div>
+
+    <!-- 右侧：用户路径文案 -->
+    <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:24px;font-size:14px;line-height:1.8;">
+      <div style="font-weight:600;font-size:16px;margin-bottom:16px;">2.1 用户路径图 (User Flow)</div>
+
+      <pre style="font-family: inherit;white-space:pre-wrap;margin:0;font-size:14px;line-height:1.8;">
+                     PC端登录页
+                         │
+         ┌───────────────┴───────────────┐
+         ▼                               ▼
+   [扫码登录 Tab]                  [账号密码登录 Tab]
+         │                               │
+         │ 展示带参二维码                 │ 输入手机号+密码
+         │                               │
+         ▼                               ├── 点击"忘记密码" → 密码重置流程
+   用户微信扫码                           │
+         │                               ▼
+         ├── 老用户(已绑定) ──────────► 校验通过 → 进入SaaS工作台
+         │                               │
+         └── 新用户(未关注/未绑定)        │ 校验失败 → 错误提示
+                │                        │
+                ▼                        │
+         关注公众号                       │
+                │                        │
+                ▼                        │
+         收到自动回复(绑定链接)            │
+                │                        │
+                ▼                        │
+         H5绑定手机号页                   │
+                │                        │
+                ├── 快捷：微信授权获取手机号
+                └── 常规：手动输入+短信验证码
+                │                        │
+                ▼                        │
+         绑定成功 → 跳转H5修改密码页       │
+                │                        │
+                ├── 设置新密码并确认       │
+                └── 或点击"暂不修改"       │
+                │                        │
+                ▼                        │
+         PC端监听到绑定成功 → 自动刷新进入工作台</pre>
+    </div>
+
+  </div>
+
+</div>

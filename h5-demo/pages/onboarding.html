@@ -1,0 +1,105 @@
+<!-- 新人引导流程 -->
+<div class="page-container onboarding-page">
+
+  <!-- 顶部 -->
+  <div class="onboarding-header">
+    <div class="onboarding-tag">NEW USER GUIDE</div>
+    <div class="onboarding-title">完成以下步骤<br>快速开启收益</div>
+    <div class="onboarding-desc">完成账号配置、小程序注册后，<br>即可获取推广链接开始推广变现</div>
+
+    <!-- 进度条 -->
+    <div class="onboarding-progress-wrap">
+      <div class="onboarding-progress-top">
+        <span>已完成 1 / 4</span>
+        <span>25%</span>
+      </div>
+      <div class="onboarding-progress-bar">
+        <div class="onboarding-progress-inner" style="width:25%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主体：左流程 + 右详情 -->
+  <div class="onboarding-main">
+
+    <!-- 左侧流程列表 -->
+    <div class="onboarding-flow">
+
+      <!-- 步骤1：已完成 -->
+      <div class="onboarding-flow-item done">
+        <div class="onboarding-status-icon">✓</div>
+        <div class="onboarding-flow-content">
+          <div class="onboarding-flow-title">
+            <h3>注册账号</h3>
+            <div class="onboarding-status-tag">已完成</div>
+          </div>
+          <div class="onboarding-flow-desc">恭喜您注册成功，系统已自动生成默认推广位。</div>
+        </div>
+      </div>
+
+      <!-- 步骤2：当前步骤 -->
+      <div class="onboarding-flow-item current">
+        <div class="onboarding-status-icon">2</div>
+        <div class="onboarding-flow-content">
+          <div class="onboarding-flow-title">
+            <h3>上传营业执照</h3>
+            <div class="onboarding-status-tag">进行中</div>
+          </div>
+          <div class="onboarding-flow-desc">财务结算与微信小程序注册，均需上传营业执照。</div>
+        </div>
+      </div>
+
+      <!-- 步骤3：未完成 -->
+      <div class="onboarding-flow-item todo">
+        <div class="onboarding-status-icon">🔒</div>
+        <div class="onboarding-flow-content">
+          <div class="onboarding-flow-title">
+            <h3>注册微信小程序</h3>
+            <div class="onboarding-status-tag">未完成</div>
+          </div>
+          <div class="onboarding-flow-desc">法人扫脸即可快速完成微信小程序注册。</div>
+        </div>
+      </div>
+
+      <!-- 步骤4：未完成 -->
+      <div class="onboarding-flow-item todo">
+        <div class="onboarding-status-icon">🔒</div>
+        <div class="onboarding-flow-content">
+          <div class="onboarding-flow-title">
+            <h3>开始推广变现</h3>
+            <div class="onboarding-status-tag">未完成</div>
+          </div>
+          <div class="onboarding-flow-desc">完成全部配置后，即可生成推广链接。</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右侧详情面板 -->
+    <div class="onboarding-detail">
+      <div class="onboarding-detail-tag">当前进行中</div>
+      <div class="onboarding-detail-title">上传营业执照</div>
+      <div class="onboarding-detail-desc">
+        财务结算及微信小程序注册，<br>均需要提供营业执照信息。
+        <br><br>
+        请上传清晰完整的营业执照照片，<br>系统将在提交后自动审核。
+      </div>
+
+      <div class="onboarding-tips">
+        <div class="onboarding-tips-title">需要准备</div>
+        <ul>
+          <li>营业执照照片（清晰无遮挡）</li>
+          <li>企业名称与法人信息</li>
+          <li>确保营业执照在有效期内</li>
+        </ul>
+      </div>
+
+      <div class="onboarding-btn-wrap">
+        <button class="onboarding-btn-primary" onclick="window.showToast('功能开发中，请联系运营上传','info')">去上传营业执照</button>
+        <button class="onboarding-btn-secondary" onclick="window.AppNav.navigateTo('dashboard')">稍后再说</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,583 @@
+<div class="page-container" id="mpEmptyPage">
+
+  <style>
+    /* 页面头部 */
+    .mp-empty-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .mp-empty-page-header h2 { margin: 0; }
+
+    /* 空状态插画区域 */
+    .mp-empty-illustration {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    /* 三卡片区域 */
+    .mp-register-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1100px) {
+      .mp-register-cards { grid-template-columns: 1fr; max-width: 360px; margin-left: auto; margin-right: auto; }
+    }
+
+    .mp-register-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(22,119,255,.08), 0 1px 4px rgba(0,0,0,.06);
+      padding: 32px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: .22s;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+    }
+    .mp-register-card:hover {
+      box-shadow: 0 8px 32px rgba(22,119,255,.16), 0 2px 8px rgba(0,0,0,.08);
+      transform: translateY(-3px);
+      border-color: #badcff;
+    }
+    .mp-register-card-icon {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      background: #e8f3ff;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+    }
+    .mp-register-card-icon svg { width: 32px; height: 32px; color: #1677ff; }
+    .mp-register-card-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #1d2129; }
+    .mp-register-card-desc {
+      font-size: 13px; color: #86909c; line-height: 1.7;
+      min-height: 70px; margin-bottom: 24px;
+    }
+    .mp-register-card .mp-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 38px; padding: 0 22px; border-radius: 6px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      border: 1.5px solid #1677ff; color: #1677ff;
+      background: #fff; transition: .18s; width: 100%;
+      letter-spacing: .3px; font-family: inherit;
+    }
+    .mp-register-card .mp-btn:hover { background: #1677ff; color: #fff; box-shadow: 0 2px 12px rgba(22,119,255,.22); }
+    .mp-register-card .mp-btn-primary { background: #1677ff; color: #fff; }
+    .mp-register-card .mp-btn-primary:hover { background: #4096ff; border-color: #4096ff; }
+
+    /* 流程按钮行 */
+    .mp-flow-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .mp-flow-actions .mp-btn-ghost {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 36px; padding: 0 20px; border-radius: 6px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: 1.5px solid #d9dde8; color: #4e5969;
+      background: #fff; transition: .18s; letter-spacing: .3px;
+      font-family: inherit;
+    }
+    .mp-flow-actions .mp-btn-ghost:hover { background: #eef0f4; color: #1d2129; }
+
+    /* 底部提示 */
+    .mp-bottom-hint {
+      text-align: center;
+      font-size: 12px; color: #bfbfbf; margin-top: 8px; margin-bottom: 24px;
+    }
+
+    /* ====== 弹窗系统 ====== */
+    .mp-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.38); z-index: 1000;
+      align-items: center; justify-content: center; padding: 18px;
+    }
+    .mp-overlay.active { display: flex; animation: mpFadeIn .18s; }
+    @keyframes mpFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes mpSlideUp { from { opacity: 0; transform: translateY(28px) scale(.97); } to { opacity: 1; transform: none; } }
+
+    .mp-modal {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 16px 64px rgba(0,0,0,.18);
+      width: 540px; max-width: 95vw;
+      animation: mpSlideUp .22s cubic-bezier(.34,1.56,.64,1);
+      overflow: hidden; max-height: 92vh; overflow-y: auto;
+    }
+    .mp-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px; border-bottom: 1px solid #eef0f4;
+      position: sticky; top: 0; background: #fff; z-index: 2;
+    }
+    .mp-modal-breadcrumb { font-size: 13px; color: #86909c; }
+    .mp-modal-breadcrumb span { color: #1677ff; }
+    .mp-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: #eef0f4; cursor: pointer;
+      color: #4e5969; font-size: 16px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .mp-modal-close:hover { background: #d9dde8; }
+    .mp-modal-body { padding: 28px 36px 24px; }
+    .mp-modal-footer { padding: 0 36px 28px; display: flex; justify-content: center; gap: 12px; }
+
+    /* 表单步骤 */
+    .mp-form-step, .mp-qr-step { display: none; }
+    .mp-form-step.active, .mp-qr-step.active { display: block; }
+    .mp-qual-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+    .mp-qual-label { font-size: 14px; color: #4e5969; }
+    .mp-qual-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e8f3ff; color: #1677ff; border-radius: 20px;
+      font-size: 13px; padding: 3px 14px; font-weight: 500;
+    }
+    .mp-form-group { margin-bottom: 18px; }
+    .mp-form-label {
+      font-size: 13px; color: #4e5969; margin-bottom: 7px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .mp-req { color: #f53f3f; }
+    .mp-form-input {
+      width: 100%; height: 38px; border: 1.5px solid #d9dde8;
+      border-radius: 6px; padding: 0 12px; font-size: 14px;
+      outline: none; font-family: inherit; box-sizing: border-box;
+    }
+    .mp-form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 3px rgba(22,119,255,.10); }
+    .mp-form-input::placeholder { color: #c9cdd4; }
+    .mp-form-hint { font-size: 12px; color: #86909c; margin-top: 5px; }
+
+    /* QR步骤 */
+    .mp-qr-step { text-align: center; }
+    .mp-qr-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; }
+    .mp-qr-box {
+      display: inline-block; padding: 18px;
+      border: 1.5px solid #d9dde8; border-radius: 12px;
+      background: #fff; margin-bottom: 14px;
+    }
+    .mp-qr-hint { font-size: 13px; color: #86909c; margin-bottom: 20px; }
+
+    /* 下一步手机模拟弹窗 */
+    .mp-next-modal { width: 430px; }
+    .mp-next-modal .mp-modal-body { padding: 0; background: #fff; }
+    .mp-phone-head {
+      height: 72px; background: #f7f8fa; border-bottom: 1px solid #edf0f5;
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .mp-phone-head .mp-x { position: absolute; left: 18px; font-size: 28px; }
+    .mp-phone-head .mp-dots { position: absolute; right: 18px; font-size: 24px; }
+    .mp-phone-title { font-size: 18px; font-weight: 650; text-align: center; }
+    .mp-phone-title small { display: block; font-size: 12px; color: #86909c; font-weight: 400; margin-top: 3px; }
+    .mp-phone-form { background: #fff; }
+    .mp-phone-row {
+      display: grid; grid-template-columns: 124px 1fr; align-items: center;
+      min-height: 72px; padding: 0 18px; border-bottom: 1px solid #f0f1f5;
+    }
+    .mp-phone-label { font-size: 16px; }
+    .mp-phone-value { text-align: right; font-size: 15px; color: #8b9099; line-height: 1.45; }
+    .mp-phone-value .mp-blue { display: block; color: #2f80ed; font-size: 13px; margin-top: 5px; }
+    .mp-phone-submit {
+      margin: 34px 18px 52px; height: 52px; border: none; border-radius: 5px;
+      background: #1677ff; color: #fff; font-size: 17px; font-weight: 650;
+      font-family: inherit; cursor: pointer; width: calc(100% - 36px);
+    }
+
+    /* 流程图弹窗 */
+    .mp-flow-modal { width: 700px; }
+    .mp-flow-modal.img-fast { width: 900px; }
+    .mp-flow-modal.img-trial { width: 820px; }
+    .mp-flow-modal.img-contact { width: 980px; }
+    .mp-flow-img-wrap {
+      width: 100%; overflow: auto; background: #fff;
+      border: 1px solid #edf0f5; border-radius: 12px; padding: 12px;
+    }
+    .mp-flow-img { display: block; width: 100%; max-width: none; height: auto; border-radius: 8px; }
+    .mp-flow-modal.img-contact .mp-flow-img { min-width: 900px; }
+    .mp-flow-modal.img-trial .mp-flow-img { min-width: 720px; }
+    .mp-flow-modal.img-fast .mp-flow-img { min-width: 820px; }
+
+    @media (max-width: 640px) {
+      .mp-modal-body { padding: 24px 20px; }
+      .mp-flow-modal, .mp-flow-modal.img-fast, .mp-flow-modal.img-trial, .mp-flow-modal.img-contact { width: 96vw; }
+      .mp-phone-row { grid-template-columns: 110px 1fr; }
+    }
+  </style>
+
+  <!-- 页面头部 -->
+  <div class="page-header">
+    <h2>小程序管理</h2>
+    <span style="font-size:12px;color:#999;background:#FFF7E6;border:1px solid #FFD591;padding:4px 12px;border-radius:12px;">演示模式：无小程序（新商户）</span>
+  </div>
+
+  <!-- 空状态插画 -->
+  <div class="mp-empty-illustration">
+    <div style="margin-bottom:16px;position:relative;display:inline-block;">
+      <div style="width:100px;height:100px;background:linear-gradient(135deg,#E8F4FD,#D0E8F7);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+        <span style="font-size:46px;">📱</span>
+      </div>
+      <div style="position:absolute;top:-8px;right:-24px;width:40px;height:40px;background:#FFF7E6;border:2px solid #FFD591;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;">➕</div>
+    </div>
+    <h3 style="font-size:20px;font-weight:600;color:#1A1A1A;margin:0 0 6px;">暂无小程序，选择注册方式</h3>
+    <p style="font-size:13px;color:#999;margin:0;">选择适合您的注册方式，快速开启小程序之旅</p>
+  </div>
+
+  <!-- ====== 三卡片（来自用户申请小程序） ====== -->
+  <div class="mp-register-cards">
+    <!-- 卡片1：快速注册小程序 -->
+    <div class="mp-register-card" id="cardFastRegister">
+      <div class="mp-register-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+          <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+          <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+          <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="mp-register-card-title">快速注册小程序</div>
+      <div class="mp-register-card-desc">填写企业信息并完成法人身份认证，即可快速创建小程序，无需认证费用，立即得到审核结果</div>
+      <button class="mp-btn">立即注册</button>
+    </div>
+
+    <!-- 卡片2：试用小程序 -->
+    <div class="mp-register-card" id="cardTrial">
+      <div class="mp-register-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+      </div>
+      <div class="mp-register-card-title">试用小程序</div>
+      <div class="mp-register-card-desc">填写企业资料后生成试用小程序，商家可体验装修、商品、会员营销等功能，后续可转正</div>
+      <button class="mp-btn">立即申请</button>
+    </div>
+
+    <!-- 卡片3：联系人工 -->
+    <div class="mp-register-card" id="cardContact">
+      <div class="mp-register-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <div class="mp-register-card-title">联系人工</div>
+      <div class="mp-register-card-desc">如有任何问题或需要专业指导，可联系我们的客服团队，提供一对一贴心服务，帮您快速完成注册</div>
+      <button class="mp-btn">立即联系</button>
+    </div>
+  </div>
+
+  <!-- 流程查看按钮 -->
+  <div class="mp-flow-actions">
+    <button class="mp-btn-ghost" id="btnFlowFast">查看快速注册流程</button>
+    <button class="mp-btn-ghost" id="btnFlowTrial">查看试用小程序流程</button>
+    <button class="mp-btn-ghost" id="btnFlowContact">查看人工联系流程</button>
+  </div>
+
+  <!-- 底部提示 -->
+  <div class="mp-bottom-hint">
+    💡 选择合适的注册方式快速入驻 &nbsp;|&nbsp; 点击流程图查看完整注册路径
+  </div>
+
+  <!-- ====== 弹窗1：注册表单 + QR码 ====== -->
+  <div class="mp-overlay" id="mpFormOverlay">
+    <div class="mp-modal" onclick="event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-breadcrumb">渠道推广 / 微信小程序注册 / <span id="mpBreadLabel">快速创建小程序</span></div>
+        <button class="mp-modal-close" id="mpFormClose">✕</button>
+      </div>
+      <!-- 表单步骤 -->
+      <div id="mpFormStep" class="mp-form-step active">
+        <div class="mp-modal-body">
+          <div class="mp-qual-row">
+            <span class="mp-qual-label">资质类型</span>
+            <span class="mp-qual-tag">✓ 企业</span>
+          </div>
+          <div class="mp-form-group">
+            <div class="mp-form-label"><span class="mp-req">*</span> 企业名称</div>
+            <input class="mp-form-input" id="mpCompanyName" placeholder="请填写企业名称"/>
+            <div class="mp-form-hint">企业名称需与工商部门登记信息一致</div>
+          </div>
+          <div class="mp-form-group">
+            <div class="mp-form-label"><span class="mp-req">*</span> 企业代码</div>
+            <input class="mp-form-input" id="mpCompanyCode" placeholder="请填写统一社会信用代码（18位）"/>
+          </div>
+          <div class="mp-form-group">
+            <div class="mp-form-label"><span class="mp-req">*</span> 法人名称</div>
+            <input class="mp-form-input" id="mpLegalPerson" placeholder="请填写企业法人姓名"/>
+            <div class="mp-form-hint">需与绑定微信银行卡姓名一致</div>
+          </div>
+        </div>
+        <div class="mp-modal-footer">
+          <button class="mp-btn mp-btn-primary" id="mpFormSubmit">提交申请</button>
+        </div>
+      </div>
+      <!-- QR码步骤 -->
+      <div id="mpQrStep" class="mp-qr-step">
+        <div class="mp-modal-body">
+          <div class="mp-qr-title">小程序注册中，请等待注册完成，或查看下一步操作</div>
+          <div class="mp-qr-box">
+            <canvas id="mpQrCanvas" width="160" height="160"></canvas>
+          </div>
+          <div class="mp-qr-hint">请您在手机端根据提示注册企业小程序</div>
+          <button class="mp-btn mp-btn-primary" id="mpViewNextStep" style="width:180px;">查看下一步</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 弹窗2：下一步（手机模拟） ====== -->
+  <div class="mp-overlay" id="mpNextOverlay">
+    <div class="mp-modal mp-next-modal" onclick="event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-breadcrumb">手机端 / <span>法人确认资料</span></div>
+        <button class="mp-modal-close" id="mpNextClose">✕</button>
+      </div>
+      <div class="mp-modal-body">
+        <div class="mp-phone-head">
+          <span class="mp-x">×</span>
+          <div class="mp-phone-title">快速注册小程序<small>exp.n.weimob.com</small></div>
+          <span class="mp-dots">···</span>
+        </div>
+        <div class="mp-phone-form">
+          <div class="mp-phone-row"><div class="mp-phone-label">资质类型</div><div class="mp-phone-value">企业</div></div>
+          <div class="mp-phone-row"><div class="mp-phone-label">企业名称</div><div class="mp-phone-value">广州言成科技有限公司<span class="mp-blue">请与工商部门登记信息一致</span></div></div>
+          <div class="mp-phone-row"><div class="mp-phone-label">企业代码类型</div><div class="mp-phone-value">统一社会信用代码（18位）</div></div>
+          <div class="mp-phone-row"><div class="mp-phone-label">企业代码</div><div class="mp-phone-value">91440101MA5CLGXL71</div></div>
+          <div class="mp-phone-row"><div class="mp-phone-label">法人名称</div><div class="mp-phone-value">请填写企业法人姓名<span class="mp-blue">需与绑定微信银行卡姓名一致</span></div></div>
+          <button class="mp-phone-submit" id="mpNextSubmit">提交信息</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 弹窗3：快速注册流程图 ====== -->
+  <div class="mp-overlay" id="mpFlowFastOverlay">
+    <div class="mp-modal mp-flow-modal img-fast" onclick="event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-breadcrumb">快速注册小程序 / <span>流程C：快速创建小程序</span></div>
+        <button class="mp-modal-close" id="mpFlowFastClose">✕</button>
+      </div>
+      <div class="mp-modal-body">
+        <div class="mp-flow-img-wrap">
+          <img class="mp-flow-img" src="images/flow/flow-fast.jpg" alt="快速注册流程"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 弹窗4：试用小程序流程图 ====== -->
+  <div class="mp-overlay" id="mpFlowTrialOverlay">
+    <div class="mp-modal mp-flow-modal img-trial" onclick="event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-breadcrumb">试用小程序 / <span>流程E：创建试用小程序并转正</span></div>
+        <button class="mp-modal-close" id="mpFlowTrialClose">✕</button>
+      </div>
+      <div class="mp-modal-body">
+        <div class="mp-flow-img-wrap">
+          <img class="mp-flow-img" src="images/flow/flow-trial.jpg" alt="试用小程序流程"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 弹窗5：联系人工流程图 ====== -->
+  <div class="mp-overlay" id="mpContactOverlay">
+    <div class="mp-modal mp-flow-modal img-contact" onclick="event.stopPropagation()">
+      <div class="mp-modal-header">
+        <div class="mp-modal-breadcrumb">联系人工 / <span>注册路径决策流程</span></div>
+        <button class="mp-modal-close" id="mpContactClose">✕</button>
+      </div>
+      <div class="mp-modal-body">
+        <div class="mp-flow-img-wrap">
+          <img class="mp-flow-img" src="images/flow/flow-contact.jpg" alt="联系人工流程"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var curMode = 'fast'; // 'fast' | 'trial'
+
+  // ---- 弹窗控制 ----
+  function openOverlay(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  }
+  function closeOverlay(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  }
+  function bgClose(e, id) {
+    if (e.target === document.getElementById(id)) closeOverlay(id);
+  }
+
+  // ---- 画二维码 ----
+  function drawQR() {
+    var c = document.getElementById('mpQrCanvas');
+    if (!c) return;
+    var ctx = c.getContext('2d');
+    var sz = 160, mod = 21, cell = sz / mod;
+    ctx.clearRect(0, 0, sz, sz);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, sz, sz);
+
+    var seed = 42;
+    function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
+    var m = Array.from({ length: mod }, function () { return Array(mod).fill(0); });
+
+    function finder(r, c) {
+      for (var dr = 0; dr < 7; dr++) {
+        for (var dc = 0; dc < 7; dc++) {
+          if (r + dr < mod && c + dc < mod) {
+            var o = dr === 0 || dr === 6 || dc === 0 || dc === 6;
+            var inside = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4;
+            m[r + dr][c + dc] = (o || inside) ? 1 : -1;
+          }
+        }
+      }
+    }
+    finder(0, 0); finder(0, 14); finder(14, 0);
+
+    for (var r = 0; r < mod; r++) {
+      for (var c2 = 0; c2 < mod; c2++) {
+        if (m[r][c2] === 0) m[r][c2] = rand() > 0.5 ? 1 : 0;
+      }
+    }
+    for (var r2 = 0; r2 < mod; r2++) {
+      for (var c3 = 0; c3 < mod; c3++) {
+        if (m[r2][c3] === 1) {
+          ctx.fillStyle = '#1677ff';
+          ctx.fillRect(c3 * cell, r2 * cell, cell - 0.5, cell - 0.5);
+        } else if (m[r2][c3] === 0 && rand() > 0.48) {
+          ctx.fillStyle = '#1d2129';
+          ctx.fillRect(c3 * cell, r2 * cell, cell - 0.5, cell - 0.5);
+        }
+      }
+    }
+  }
+
+  // ---- 表单提交 ----
+  function submitForm() {
+    var name = document.getElementById('mpCompanyName').value.trim();
+    if (!name) { window.showToast('请填写企业名称', 'error'); return; }
+
+    document.getElementById('mpFormStep').classList.remove('active');
+    document.getElementById('mpQrStep').classList.add('active');
+    drawQR();
+  }
+
+  // ---- 注册模式 ----
+  function openFormModal(mode) {
+    curMode = mode;
+    document.getElementById('mpBreadLabel').textContent = mode === 'fast' ? '快速创建小程序' : '试用小程序申请';
+    document.getElementById('mpFormStep').classList.add('active');
+    document.getElementById('mpQrStep').classList.remove('active');
+    // 清空表单
+    document.getElementById('mpCompanyName').value = '';
+    document.getElementById('mpCompanyCode').value = '';
+    document.getElementById('mpLegalPerson').value = '';
+    openOverlay('mpFormOverlay');
+  }
+
+  function openNextStep() {
+    closeOverlay('mpFormOverlay');
+    openOverlay('mpNextOverlay');
+  }
+
+  function submitNextStep() {
+    closeOverlay('mpNextOverlay');
+    openOverlay('mpFormOverlay');
+    document.getElementById('mpFormStep').classList.remove('active');
+    document.getElementById('mpQrStep').classList.add('active');
+    drawQR();
+  }
+
+  function init() {
+    // ---- 三卡片点击 ----
+    var cardFast = document.getElementById('cardFastRegister');
+    if (cardFast) {
+      cardFast.addEventListener('click', function () { openFormModal('fast'); });
+      cardFast.querySelector('button').addEventListener('click', function (e) { e.stopPropagation(); openFormModal('fast'); });
+    }
+
+    var cardTrial = document.getElementById('cardTrial');
+    if (cardTrial) {
+      cardTrial.addEventListener('click', function () { openFormModal('trial'); });
+      cardTrial.querySelector('button').addEventListener('click', function (e) { e.stopPropagation(); openFormModal('trial'); });
+    }
+
+    var cardContact = document.getElementById('cardContact');
+    if (cardContact) {
+      cardContact.addEventListener('click', function () { openOverlay('mpContactOverlay'); });
+      cardContact.querySelector('button').addEventListener('click', function (e) { e.stopPropagation(); openOverlay('mpContactOverlay'); });
+    }
+
+    // ---- 流程按钮 ----
+    var btnFlowFast = document.getElementById('btnFlowFast');
+    if (btnFlowFast) btnFlowFast.addEventListener('click', function () { openOverlay('mpFlowFastOverlay'); });
+
+    var btnFlowTrial = document.getElementById('btnFlowTrial');
+    if (btnFlowTrial) btnFlowTrial.addEventListener('click', function () { openOverlay('mpFlowTrialOverlay'); });
+
+    var btnFlowContact = document.getElementById('btnFlowContact');
+    if (btnFlowContact) btnFlowContact.addEventListener('click', function () { openOverlay('mpContactOverlay'); });
+
+    // ---- 表单弹窗事件 ----
+    var formClose = document.getElementById('mpFormClose');
+    if (formClose) formClose.addEventListener('click', function () { closeOverlay('mpFormOverlay'); });
+
+    var formSubmit = document.getElementById('mpFormSubmit');
+    if (formSubmit) formSubmit.addEventListener('click', submitForm);
+
+    var formOverlay = document.getElementById('mpFormOverlay');
+    if (formOverlay) formOverlay.addEventListener('click', function (e) { bgClose(e, 'mpFormOverlay'); });
+
+    var viewNext = document.getElementById('mpViewNextStep');
+    if (viewNext) viewNext.addEventListener('click', openNextStep);
+
+    // ---- 下一步弹窗事件 ----
+    var nextClose = document.getElementById('mpNextClose');
+    if (nextClose) nextClose.addEventListener('click', function () { closeOverlay('mpNextOverlay'); });
+
+    var nextSubmit = document.getElementById('mpNextSubmit');
+    if (nextSubmit) nextSubmit.addEventListener('click', submitNextStep);
+
+    var nextOverlay = document.getElementById('mpNextOverlay');
+    if (nextOverlay) nextOverlay.addEventListener('click', function (e) { bgClose(e, 'mpNextOverlay'); });
+
+    // ---- 流程弹窗事件 ----
+    var flowFastClose = document.getElementById('mpFlowFastClose');
+    if (flowFastClose) flowFastClose.addEventListener('click', function () { closeOverlay('mpFlowFastOverlay'); });
+
+    var flowFastOverlay = document.getElementById('mpFlowFastOverlay');
+    if (flowFastOverlay) flowFastOverlay.addEventListener('click', function (e) { bgClose(e, 'mpFlowFastOverlay'); });
+
+    var flowTrialClose = document.getElementById('mpFlowTrialClose');
+    if (flowTrialClose) flowTrialClose.addEventListener('click', function () { closeOverlay('mpFlowTrialOverlay'); });
+
+    var flowTrialOverlay = document.getElementById('mpFlowTrialOverlay');
+    if (flowTrialOverlay) flowTrialOverlay.addEventListener('click', function (e) { bgClose(e, 'mpFlowTrialOverlay'); });
+
+    var contactClose = document.getElementById('mpContactClose');
+    if (contactClose) contactClose.addEventListener('click', function () { closeOverlay('mpContactOverlay'); });
+
+    var contactOverlay = document.getElementById('mpContactOverlay');
+    if (contactOverlay) contactOverlay.addEventListener('click', function (e) { bgClose(e, 'mpContactOverlay'); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>

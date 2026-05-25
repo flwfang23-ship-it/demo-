@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户后台 - 权益页可视化配置</title>
+    <style>
+        /* 全局与基础布局 */
+        body { margin: 0; background-color: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 200px; background-color: #001529; color: rgba(255, 255, 255, 0.65); display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-logo { height: 64px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: bold; background-color: #002140; }
+        .menu-item { padding: 16px 24px; cursor: pointer; transition: 0.3s; }
+        .menu-item:hover { color: #fff; }
+        .menu-item.active { background-color: #1677ff; color: #fff; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .header { height: 64px; background: #fff; display: flex; align-items: center; padding: 0 24px; font-size: 18px; font-weight: 500; box-shadow: 0 1px 4px rgba(0,21,41,.08); z-index: 10; }
+        .page-container { padding: 24px; display: flex; flex-direction: column; align-items: center; }
+        .content-box { background: #fff; border-radius: 8px; padding: 24px; width: 100%; max-width: 1000px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        /* 顶部推广位 Tab */
+        .tabs-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; margin-bottom: 24px; }
+        .tabs { display: flex; flex: 1; overflow-x: auto; }
+        .tab-item { padding: 12px 24px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .tab-item:hover { color: #1677ff; }
+        .tab-item.active { color: #1677ff; font-weight: 500; border-bottom-color: #1677ff; }
+        .tag-default { background: #ff4d4f; color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px; transform: scale(0.9); }
+        .tab-manage-btn { color: #1677ff; cursor: pointer; padding: 12px 16px; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+        .tab-manage-btn:hover { background: #f5f5f5; border-radius: 4px; }
+
+        /* 可视化手机模拟器布局 */
+        .mobile-simulator {
+            width: 420px;
+            background: #f7f8fa;
+            border: 8px solid #333;
+            border-radius: 24px;
+            padding: 16px 12px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+            min-height: 700px;
+        }
+        .col { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+        /* 模块标题栏 (可编辑) */
+        .module-group { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .module-title-bar {
+            background: linear-gradient(90deg, #FFDF40, #FFC914);
+            border-radius: 20px;
+            padding: 4px 16px 4px 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(255,200,0,0.4);
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+        .module-title-bar:hover { border-color: #1677ff; transform: scale(1.02); }
+        .module-title-bar:hover::after {
+            content: '✎ 修改'; position: absolute; right: -40px; font-size: 12px; color: #1677ff; font-weight: bold;
+        }
+        .module-logo { width: 24px; height: 24px; border-radius: 50%; background: #fff; object-fit: cover; }
+        .module-title-text { font-size: 14px; font-weight: bold; color: #c43200; }
+
+        /* 卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #ffe8e8;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .card:hover { border-color: #1677ff; box-shadow: 0 4px 12px rgba(22,119,255,0.1); }
+        .card-img-box { height: 70px; background: #f0f0f0; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #999; overflow: hidden; position: relative; }
+        .card-img-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .card-info { text-align: center; flex: 1; }
+        .c-main { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .c-sub { font-size: 11px; color: #ff4d4f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* 卡片底部操作按钮 */
+        .card-actions { display: flex; gap: 4px; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; }
+        .btn-act { flex: 1; text-align: center; font-size: 11px; padding: 4px 0; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .btn-act.style { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .btn-act.link { background: #e6f7ff; color: #1677ff; border: 1px solid #91d5ff; }
+        .btn-act:hover { filter: brightness(0.95); }
+
+        /* 特殊布局容器 */
+        .row-2 { display: flex; gap: 8px; width: 100%; }
+        .row-2 .card { flex: 1; padding: 6px; }
+
+        /* 弹窗样式 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal { width: 400px; background: #fff; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-20px); transition: transform 0.3s; overflow: hidden; }
+        .modal-header { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 16px; }
+        .modal-close { cursor: pointer; color: #999; font-size: 18px; }
+        .modal-close:hover { color: #333; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 12px 24px; border-top: 1px solid #f0f0f0; text-align: right; background: #fafafa; }
+        
+        .form-item { margin-bottom: 16px; }
+        .form-item label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; }
+        .form-item input, .form-item select { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; outline: none; box-sizing: border-box; }
+        .form-item input:focus, .form-item select:focus { border-color: #1677ff; }
+        
+        .alert-info { background: #fffbe6; border: 1px solid #ffe58f; padding: 8px 12px; border-radius: 4px; color: #d46b08; font-size: 12px; margin-top: 16px; }
+        
+        .btn-primary { background: #1677ff; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; }
+        .btn-default { background: #fff; color: #333; border: 1px solid #d9d9d9; padding: 6px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px; }
+
+        /* 推广位管理列表 */
+        .manage-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+        .manage-item { padding: 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .manage-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-logo">商户管理后台</div>
+    <div class="menu-item">数据看板</div>
+    <div class="menu-item active">权益页配置</div>
+    <div class="menu-item">财务对账</div>
+</div>
+
+<div class="main-content">
+    <div class="header">权益页配置</div>
+    <div class="page-container">
+        <div class="content-box">
+            
+            <div class="tabs-header">
+                <div class="tabs" id="tabContainer">
+                    <div class="tab-item active" data-id="tab-1">亚联-小票-0920 <span class="tag-default">默认</span></div>
+                    <div class="tab-item" data-id="tab-2">言成-通用-1</div>
+                    <div class="tab-item" data-id="tab-3">言成-通用-2</div>
+                    <div class="tab-item" data-id="tab-4">言成-通用-3</div>
+                </div>
+                <div class="tab-manage-btn" onclick="openManageModal()">⚙️ 推广位管理</div>
+            </div>
+
+            <div style="text-align: center; color: #999; margin-bottom: 16px; font-size: 13px;">
+                💡 提示：点击黄色标题栏可修改模块标题和Logo；点击卡片底部按钮修改样式和活动内容。
+            </div>
+            
+            <div class="mobile-simulator" id="mobileSimulator">
+                <div class="col" id="colLeft"></div>
+                <div class="col" id="colRight"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="moduleTitleModalOverlay">
+    <div class="modal" id="moduleTitleModal">
+        <div class="modal-header">
+            <span>编辑模块标题</span>
+            <span class="modal-close" onclick="closeModal('moduleTitleModalOverlay')">✕</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-item">
+                <label>模块 Logo (URL)</label>
+                <input type="text" id="moduleLogoInput" placeholder="输入图片链接">
+            </div>
+            <div class="form-item">
+                <label>模块文案</label>
+                <input type="text" id="moduleTitleInput" placeholder="如：淘宝红包">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-default" onclick="closeModal('moduleTitleModalOverlay')">取消</button>
+            <button class="btn-primary" onclick="saveModuleTitle()">保存配置</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="styleModalOverlay">
+    <div class="modal" id="styleModal">
+        <div class="modal-header">
+            <span>配置卡片样式</span>
+            <span class="modal-close" onclick="closeModal('styleModalOverlay')">✕</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-item">
+                <label>卡片图片 (URL)</label>
+                <input type="text" id="styleImg" placeholder="输入图片链接">
+            </div>
+            <div class="form-item">
+                <label>主标题</label>
+                <input type="text" id="styleMainTitle" placeholder="例如：10-18元百亿补贴">
+            </div>
+            <div class="form-item">
+                <label>副标题</label>
+                <input type="text" id="styleSubTitle" placeholder="例如：疯抢大额补贴">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-default" onclick="closeModal('styleModalOverlay')">取消</button>
+            <button class="btn-primary" onclick="saveStyle()">确认保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="activityModalOverlay">
+    <div class="modal" id="activityModal">
+        <div class="modal-header">
+            <span>配置关联活动</span>
+            <span class="modal-close" onclick="closeModal('activityModalOverlay')">✕</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-item">
+                <label>选择平台</label>
+                <select id="actPlatform">
+                    <option value="taobao">淘宝 / 饿了么</option>
+                    <option value="meituan">美团</option>
+                    <option value="jd">京东</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label>选择活动</label>
+                <select id="actSelect">
+                    <option value="1">天天领红包（口令）</option>
+                    <option value="2">特价版百亿补贴（小程序直跳）</option>
+                    <option value="3">外卖神券（小程序直跳）</option>
+                </select>
+            </div>
+            <div class="alert-info">
+                🔴 <b>重要提示：</b>权益页只可配置口令和有小程序路径的活动，不支持普通网页链接。
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-default" onclick="closeModal('activityModalOverlay')">取消</button>
+            <button class="btn-primary" onclick="saveActivity()">确认保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="manageModalOverlay">
+    <div class="modal" id="manageModal">
+        <div class="modal-header">
+            <span>推广位管理</span>
+            <span class="modal-close" onclick="closeModal('manageModalOverlay')">✕</span>
+        </div>
+        <div class="modal-body" style="padding: 0;">
+            <ul class="manage-list" id="manageList">
+                </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="closeModal('manageModalOverlay')">完成</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 状态管理
+    let currentEditCardId = null;
+    let currentEditModuleId = null;
+
+    // 根据样版图设计的模块数据结构
+    const layoutConfig = {
+        left: [
+            { id: 'm1', title: '淘宝红包', logo: 'https://img.alicdn.com/tfs/TB1_uT8a5ERMeJjSspiXXbXepXa-50-50.png', 
+              cards: [ { type: 'normal' }, { type: 'normal' } ] }, // 第一个标题2个
+            { id: 'm2', title: '淘宝闪购红包', logo: 'https://img.alicdn.com/tfs/TB1_uT8a5ERMeJjSspiXXbXepXa-50-50.png', 
+              cards: [ { type: 'row-2' }, { type: 'normal' } ] }  // 第二个标题3个 (上2下1)
+        ],
+        right: [
+            { id: 'm3', title: '美团红包', logo: 'https://p0.meituan.net/travelcube/162815f917c385b01889dc801db87bf431186.png', 
+              cards: [ { type: 'normal' }, { type: 'normal' }, { type: 'normal' } ] }, // 第三个标题3个 (全竖排)
+            { id: 'm4', title: '京东红包', logo: 'https://img10.360buyimg.com/img/jfs/t1/192028/25/33459/5661/63a51f81F424c8021/697cc649c0107297.png', 
+              cards: [ { type: 'row-2' } ] } // 第四个标题2个 (并排2个)
+        ]
+    };
+
+    let globalCardIndex = 1;
+
+    // 生成单个卡片的HTML
+    function generateCardHtml() {
+        const id = `card-${globalCardIndex++}`;
+        return `
+            <div class="card" id="${id}">
+                <div class="card-img-box">
+                    <span class="img-text">配置图片</span>
+                    <img src="" alt="">
+                </div>
+                <div class="card-info">
+                    <div class="c-main">主标题占位</div>
+                    <div class="c-sub">副标题占位</div>
+                </div>
+                <div class="card-actions">
+                    <div class="btn-act style" onclick="openStyleModal('${id}')">🎨 样式</div>
+                    <div class="btn-act link" onclick="openActivityModal('${id}')">🔗 活动</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 渲染模块
+    function renderModule(moduleData) {
+        let cardsHtml = '';
+        moduleData.cards.forEach(cardConf => {
+            if (cardConf.type === 'normal') {
+                cardsHtml += generateCardHtml();
+            } else if (cardConf.type === 'row-2') {
+                cardsHtml += `<div class="row-2">${generateCardHtml()}${generateCardHtml()}</div>`;
+            }
+        });
+
+        return `
+            <div class="module-group" id="${moduleData.id}">
+                <div class="module-title-bar" onclick="openModuleTitleModal('${moduleData.id}')">
+                    <img src="${moduleData.logo}" class="module-logo" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">
+                    <span class="module-title-text">${moduleData.title}</span>
+                </div>
+                ${cardsHtml}
+            </div>
+        `;
+    }
+
+    // 初始化渲染瀑布流布局
+    function initLayout() {
+        globalCardIndex = 1;
+        const colLeft = document.getElementById('colLeft');
+        const colRight = document.getElementById('colRight');
+        
+        colLeft.innerHTML = layoutConfig.left.map(m => renderModule(m)).join('');
+        colRight.innerHTML = layoutConfig.right.map(m => renderModule(m)).join('');
+    }
+
+    // --- 弹窗基础逻辑 ---
+    function openModalBase(overlayId, modalId) {
+        const overlay = document.getElementById(overlayId);
+        const modal = document.getElementById(modalId);
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            modal.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function closeModal(overlayId) {
+        const overlay = document.getElementById(overlayId);
+        const modal = overlay.querySelector('.modal');
+        overlay.style.opacity = '0';
+        modal.style.transform = 'translateY(-20px)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300);
+    }
+
+    // --- 模块标题/Logo 编辑逻辑 ---
+    function openModuleTitleModal(moduleId) {
+        currentEditModuleId = moduleId;
+        const moduleDOM = document.getElementById(moduleId);
+        const titleText = moduleDOM.querySelector('.module-title-text').innerText;
+        const logoSrc = moduleDOM.querySelector('.module-logo').src;
+
+        document.getElementById('moduleTitleInput').value = titleText;
+        document.getElementById('moduleLogoInput').value = logoSrc.includes('data:image') ? '' : logoSrc;
+        
+        openModalBase('moduleTitleModalOverlay', 'moduleTitleModal');
+    }
+
+    function saveModuleTitle() {
+        const newTitle = document.getElementById('moduleTitleInput').value;
+        const newLogo = document.getElementById('moduleLogoInput').value;
+        
+        const moduleDOM = document.getElementById(currentEditModuleId);
+        if(newTitle) moduleDOM.querySelector('.module-title-text').innerText = newTitle;
+        if(newLogo) moduleDOM.querySelector('.module-logo').src = newLogo;
+        
+        closeModal('moduleTitleModalOverlay');
+    }
+
+    // --- 卡片样式修改逻辑 ---
+    function openStyleModal(cardId) {
+        currentEditCardId = cardId;
+        const card = document.getElementById(cardId);
+        document.getElementById('styleMainTitle').value = card.querySelector('.c-main').innerText;
+        document.getElementById('styleSubTitle').value = card.querySelector('.c-sub').innerText;
+        openModalBase('styleModalOverlay', 'styleModal');
+    }
+
+    function saveStyle() {
+        const mainTitle = document.getElementById('styleMainTitle').value;
+        const subTitle = document.getElementById('styleSubTitle').value;
+        const imgUrl = document.getElementById('styleImg').value;
+
+        const card = document.getElementById(currentEditCardId);
+        if(mainTitle) card.querySelector('.c-main').innerText = mainTitle;
+        if(subTitle) card.querySelector('.c-sub').innerText = subTitle;
+        
+        if(imgUrl) {
+            const imgBox = card.querySelector('.card-img-box');
+            imgBox.querySelector('.img-text').style.display = 'none';
+            const img = imgBox.querySelector('img');
+            img.src = imgUrl;
+            img.style.display = 'block';
+        }
+        closeModal('styleModalOverlay');
+    }
+
+    // --- 活动修改逻辑 ---
+    function openActivityModal(cardId) {
+        currentEditCardId = cardId;
+        openModalBase('activityModalOverlay', 'activityModal');
+    }
+
+    function saveActivity() {
+        alert('关联活动配置成功！');
+        closeModal('activityModalOverlay');
+    }
+
+    // --- 顶部 Tabs 与 推广位管理 ---
+    document.getElementById('tabContainer').addEventListener('click', (e) => {
+        const item = e.target.closest('.tab-item');
+        if(item) {
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+            
+            // 切换时加个小动画
+            const simulator = document.getElementById('mobileSimulator');
+            simulator.style.opacity = '0.2';
+            setTimeout(() => { simulator.style.opacity = '1'; }, 200);
+        }
+    });
+
+    function openManageModal() {
+        const tabs = document.querySelectorAll('.tab-item');
+        const manageList = document.getElementById('manageList');
+        manageList.innerHTML = '';
+        
+        tabs.forEach(tab => {
+            const isDefault = tab.querySelector('.tag-default') !== null;
+            const isHidden = tab.style.display === 'none';
+            const tabName = tab.innerText.replace('默认', '').trim();
+            const tabId = tab.dataset.id;
+
+            const disabledAttr = isDefault ? 'disabled checked' : (isHidden ? '' : 'checked');
+            
+            manageList.innerHTML += `
+                <li class="manage-item">
+                    <label>
+                        <input type="checkbox" ${disabledAttr} onchange="toggleTabVisible('${tabId}', this.checked)">
+                        ${tabName} ${isDefault ? '<span class="tag-default">默认不可关</span>' : ''}
+                    </label>
+                </li>
+            `;
+        });
+        openModalBase('manageModalOverlay', 'manageModal');
+    }
+
+    function toggleTabVisible(tabId, isVisible) {
+        const tab = document.querySelector(`.tab-item[data-id="${tabId}"]`);
+        if(tab) {
+            tab.style.display = isVisible ? 'flex' : 'none';
+            if(!isVisible && tab.classList.contains('active')) {
+                document.querySelector('.tab-item[data-id="tab-1"]').click();
+            }
+        }
+    }
+
+    // 初始化
+    window.onload = initLayout;
+</script>
+</body>
+</html>

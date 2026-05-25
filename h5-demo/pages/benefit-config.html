@@ -1,0 +1,136 @@
+<!-- C04 权益页配置 — 拖拽式可视化编辑器（增强版） -->
+<div class="page-container benefit-config-page">
+
+  <!-- ====== 拖拽编辑器三栏布局 ====== -->
+  <div class="editor-wrapper">
+
+    <!-- 左侧组件库 -->
+    <div class="component-library">
+      <div class="lib-title">🧰 组件库</div>
+      <div class="comp-tabs" id="compTabs"></div>
+      <div class="comp-list" id="compLibList"></div>
+    </div>
+
+    <!-- 中间：手机模拟器 + 保存栏 -->
+    <div class="simulator-col">
+      <div class="simulator-wrapper">
+        <div class="mobile-simulator-enhanced" id="mobileSimulator">
+
+          <!-- 顶部标题栏 -->
+          <div class="sim-header">
+            <div class="sim-header-title">权益中心</div>
+            <div class="sim-header-actions">···</div>
+          </div>
+
+          <!-- 主体：左导航 + 右画布 -->
+          <div class="sim-body">
+            <div class="sim-sidebar" id="simSidebar">
+              <div class="sim-nav-container" id="simNavContainer"></div>
+              <div class="add-cate-btn" id="btnAddCate">➕ 添加</div>
+            </div>
+            <div class="sim-content">
+              <div class="two-col-layout">
+                <div class="col drop-zone" id="colLeft"></div>
+                <div class="col drop-zone" id="colRight"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 保存按钮栏 -->
+      <div class="benefit-save-bar">
+        <span class="save-hint" id="saveHint">✅ 所有修改已保存</span>
+        <button class="btn-save-config" id="btnSaveConfig" disabled>💾 保存配置</button>
+      </div>
+    </div>
+
+    <!-- 右侧收入流转图 -->
+    <div class="chart-panel" id="incomeChartPanel">
+      <div class="chart-panel-title">📊 收入流转图</div>
+      <div class="chart-thumb-box" id="chartThumbBox">
+        <img src="images/收入流转图.jpg" alt="收入流转图" class="chart-thumb-img">
+        <div class="chart-zoom-hint">🔍 点击放大</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ====== 模块标题编辑弹窗 ====== -->
+<div class="modal-overlay benefit-modal-overlay" id="moduleTitleModalOverlay" style="display:none">
+  <div class="benefit-modal" id="moduleTitleModal">
+    <div class="modal-header">
+      <h3>编辑标题栏</h3>
+      <button class="modal-close" id="btnCloseModuleTitle">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-item">
+        <label>图标 (URL或Emoji)</label>
+        <input type="text" id="moduleLogoInput" placeholder="例如：🔥 或 图片链接">
+      </div>
+      <div class="form-item">
+        <label>标题文案</label>
+        <input type="text" id="moduleTitleInput" placeholder="例如：淘宝红包">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelModuleTitle">取消</button>
+      <button class="btn-primary" id="btnSaveModuleTitle">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 分类编辑弹窗 ====== -->
+<div class="modal-overlay benefit-modal-overlay" id="cateModalOverlay" style="display:none">
+  <div class="benefit-modal cate-modal" id="cateModal">
+    <div class="modal-header">
+      <h3>编辑分类菜单</h3>
+      <button class="modal-close" id="btnCloseCate">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-item">
+        <label>分类图标</label>
+        <input type="text" id="cateIconInput" placeholder="例如：🚗 或 图片链接">
+      </div>
+      <div class="form-item">
+        <label>分类名称</label>
+        <input type="text" id="cateNameInput" placeholder="例如：限时秒杀">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelCate">取消</button>
+      <button class="btn-primary" id="btnSaveCate">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 推广位管理弹窗 ====== -->
+<div class="modal-overlay benefit-modal-overlay" id="manageModalOverlay" style="display:none">
+  <div class="benefit-modal" id="manageModal">
+    <div class="modal-header">
+      <h3>推广位显示管理</h3>
+      <button class="modal-close" id="btnCloseManage">&times;</button>
+    </div>
+    <div class="modal-body">
+      <ul class="manage-list" id="manageList"></ul>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="btnFinishManage">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Toast ====== -->
+<div class="toast-msg" id="benefitToast"></div>
+
+<!-- ====== 收入流转图放大灯箱 ====== -->
+<div class="lightbox-overlay" id="chartLightbox" style="display:none">
+  <div class="lightbox-backdrop"></div>
+  <div class="lightbox-content">
+    <button class="lightbox-close" id="btnCloseLightbox">&times;</button>
+    <img src="images/收入流转图.jpg" alt="收入流转图" class="lightbox-img" id="lightboxImg">
+  </div>
+</div>

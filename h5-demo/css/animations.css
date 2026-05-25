@@ -1,0 +1,285 @@
+/* ====== Animation Keyframes ====== */
+
+/* Page transitions */
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pageFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Modal animations */
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modalOverlayOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes modalBoxIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modalBoxOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.92) translateY(20px); }
+}
+
+/* Toast */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-12px) scale(0.95); }
+}
+
+/* Number counting bounce */
+@keyframes countBounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Pulse (notification dot, status indicators) */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* Skeleton loading shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+/* Spin (loading spinner) */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Fade in scale (cards, list items) */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Slide in from right (drawers, panels) */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Bounce in (attention-grabbing elements) */
+@keyframes bounceIn {
+  0%   { opacity: 0; transform: scale(0.3); }
+  50%  { opacity: 1; transform: scale(1.08); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* Checkmark draw */
+@keyframes checkmarkDraw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Ripple effect */
+@keyframes rippleEffect {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Subtle float (card hover lift) */
+@keyframes floatUp {
+  from { transform: translateY(0); box-shadow: var(--shadow-sm); }
+  to   { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+}
+
+
+/* ====== Transition Utility Classes ====== */
+
+/* Fade in base */
+.ani-fade-in {
+  animation: pageFadeIn 0.3s ease both;
+}
+
+/* Stagger children: apply to parent, children get delayed fade */
+.ani-stagger > * {
+  opacity: 0;
+  animation: fadeInScale 0.35s ease both;
+}
+.ani-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.ani-stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.ani-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.ani-stagger > *:nth-child(4) { animation-delay: 0.20s; }
+.ani-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.ani-stagger > *:nth-child(6) { animation-delay: 0.30s; }
+.ani-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.ani-stagger > *:nth-child(8) { animation-delay: 0.40s; }
+
+/* Scale on hover (usable on any card/box) */
+.ani-hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.ani-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Subtle press feedback on clickable cards */
+.ani-press:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+
+/* ====== Component Animations ====== */
+
+/* Page content wrapper */
+.page-transition-wrapper {
+  animation: pageFadeIn 0.3s ease both;
+}
+
+/* Modal overlay animated states */
+.modal-animated {
+  animation: modalOverlayIn 0.2s ease both;
+}
+.modal-animated.modal-closing {
+  animation: modalOverlayOut 0.2s ease both;
+}
+.modal-animated .modal-box,
+.modal-animated .confirm-box,
+.modal-animated .withdraw-modal,
+.modal-animated .promote-modal {
+  animation: modalBoxIn 0.25s ease both;
+}
+.modal-animated.modal-closing .modal-box,
+.modal-animated.modal-closing .confirm-box,
+.modal-animated.modal-closing .withdraw-modal,
+.modal-animated.modal-closing .promote-modal {
+  animation: modalBoxOut 0.2s ease both;
+}
+
+/* Toast */
+.toast-animated {
+  animation: toastSlideIn 0.3s ease both;
+}
+.toast-animated.toast-hiding {
+  animation: toastSlideOut 0.25s ease both;
+}
+
+/* Notification dot pulse */
+.notify-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 32px; height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loading-spinner.lg {
+  width: 48px; height: 48px;
+  border-width: 4px;
+}
+.loading-spinner.sm {
+  width: 18px; height: 18px;
+  border-width: 2px;
+}
+
+/* Skeleton placeholder */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+.skeleton-line {
+  height: 14px;
+  margin-bottom: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+}
+.skeleton-line:last-child { width: 60%; }
+.skeleton-block {
+  height: 80px;
+  border-radius: var(--radius-md);
+}
+
+/* Button ripple */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 10%, transparent 10%);
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.btn-ripple:active::after {
+  opacity: 1;
+  transition: none;
+}
+
+/* Number count-up */
+.count-up {
+  transition: all 0.4s ease;
+}
+.count-up.animate {
+  animation: countBounce 0.5s ease;
+}
+
+/* Tab content switch (cross-fade) */
+.tab-content-switch {
+  animation: pageFadeIn 0.25s ease both;
+}
+
+/* Table row enter */
+@keyframes rowEnter {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.row-enter {
+  animation: rowEnter 0.3s ease both;
+}
+
+/* Card grid stagger entrance */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card-enter {
+  animation: cardEnter 0.35s ease both;
+}
+
+/* Smooth height collapse/expand */
+.collapse-height {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* Switch toggle enhanced */
+.switch-enhanced .switch-slider {
+  transition: background 0.2s ease;
+}
+.switch-enhanced .switch-slider::before {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Page scrollbar smooth */
+.content-smooth {
+  scroll-behavior: smooth;
+}

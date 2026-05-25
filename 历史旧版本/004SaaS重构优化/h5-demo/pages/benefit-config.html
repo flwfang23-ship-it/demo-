@@ -1,0 +1,387 @@
+<!-- C04 权益页配置 — 可视化编辑器（优化版） -->
+<div class="page-container benefit-config-page">
+
+  <!-- ====== 操作手册引导 ====== -->
+  <div class="guide-wrapper">
+    <div class="guide-header">
+      <div class="guide-title">
+        <div class="guide-icon">📘</div>
+        <h2>操作手册</h2>
+      </div>
+      <div class="guide-desc">快速完成推广位配置与活动推广</div>
+    </div>
+    <div class="guide-steps">
+      <!-- 步骤一 -->
+      <div class="guide-card">
+        <div class="guide-card-header">
+          <div class="guide-badge">01</div>
+          <div class="guide-card-title">选择推广位</div>
+          <div class="guide-card-emoji">➕</div>
+        </div>
+        <div class="guide-card-content" title="点击按钮勾选需要推广的推广位，仅已选中的推广位会在权益页生效。">
+          点击按钮勾选需要推广的推广位，仅已选中的推广位会在权益页生效。
+        </div>
+        <div class="guide-card-actions">
+          <button class="btn-guide btn-guide-primary" id="btnGuideAddPromo">＋ 添加推广位</button>
+        </div>
+      </div>
+      <!-- 步骤二 -->
+      <div class="guide-card">
+        <div class="guide-card-header">
+          <div class="guide-badge">02</div>
+          <div class="guide-card-title">编辑样式</div>
+          <div class="guide-card-emoji">🎨</div>
+        </div>
+        <div class="guide-card-content" title="鼠标悬浮左侧导航分类，点击 ✏️ 编辑图标与名称；点击「样式」按钮修改文案与图片。">
+          鼠标悬浮左侧导航分类，点击 ✏️ 编辑图标与名称；点击「样式」按钮修改文案与图片。
+        </div>
+      </div>
+      <!-- 步骤三 -->
+      <div class="guide-card">
+        <div class="guide-card-header">
+          <div class="guide-badge">03</div>
+          <div class="guide-card-title">选择活动</div>
+          <div class="guide-card-emoji">🔗</div>
+        </div>
+        <div class="guide-card-content" title="点击「活动」按钮选择推广活动；外部活动需额外配置推广位路径，保存后立即生效。">
+          点击「活动」按钮选择推广活动；外部活动需额外配置推广位路径，保存后立即生效。
+        </div>
+      </div>
+      <!-- 步骤四 -->
+      <div class="guide-card">
+        <div class="guide-card-header">
+          <div class="guide-badge">04</div>
+          <div class="guide-card-title">开始推广</div>
+          <div class="guide-card-emoji">🚀</div>
+        </div>
+        <div class="guide-card-content" title="在右侧推广位列表复制小程序路径或 H5 路径，粘贴至企微推广信息即可开始推广。">
+          在右侧推广位列表复制小程序路径或 H5 路径，粘贴至企微推广信息即可开始推广。
+        </div>
+        <div class="guide-card-actions">
+          <button class="btn-guide btn-guide-outline" id="btnGuideMpAppIdList">📱 小程序APPID清单</button>
+          <button class="btn-guide btn-guide-outline" id="btnGuideViewChart">📊 收入流转图</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 编辑器双栏布局 ====== -->
+  <div class="editor-wrapper">
+
+    <!-- 左侧：手机模拟器 -->
+    <div class="simulator-col">
+      <div class="simulator-wrapper">
+        <div class="mobile-simulator-enhanced" id="mobileSimulator">
+
+          <!-- 顶部标题栏 -->
+          <div class="sim-header">
+            <div class="sim-header-title">权益中心</div>
+          </div>
+
+          <!-- 主体：左导航 + 右画布 -->
+          <div class="sim-body">
+            <div class="sim-sidebar" id="simSidebar">
+              <div class="sim-nav-container" id="simNavContainer"></div>
+              <div class="add-cate-btn" id="btnAddCate">➕ 添加</div>
+            </div>
+            <div class="sim-content" id="simContent">
+              <div class="two-col-layout">
+                <div class="col" id="colLeft"></div>
+                <div class="col" id="colRight"></div>
+              </div>
+              <div class="full-width-layout" id="bottomFullWidth"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 保存按钮 — 手机正下方 -->
+      <div class="benefit-save-bar">
+        <span class="save-hint" id="saveHint"></span>
+        <button class="btn-save-config" id="btnSaveConfig" disabled>💾 保存配置</button>
+      </div>
+    </div>
+
+    <!-- 右侧配置面板 -->
+    <div class="benefit-right-panel" id="benefitRightPanel">
+
+      <!-- 工具栏 -->
+      <div class="right-panel-toolbar">
+        <span class="toolbar-title">已选推广位列表</span>
+      </div>
+
+      <!-- 已选推广位列表 -->
+      <div class="promo-table-wrap">
+        <table class="promo-table" id="promoTable">
+          <thead>
+            <tr>
+              <th class="col-name">推送推广位</th>
+              <th class="col-group">推广位分组</th>
+              <th class="col-mini">小程序推广路径</th>
+              <th class="col-h5">H5推广路径</th>
+              <th class="col-missing">缺失活动</th>
+              <th class="col-actions">操作</th>
+            </tr>
+          </thead>
+          <tbody id="promoTableBody">
+            <tr class="promo-empty-row" id="promoEmptyRow">
+              <td colspan="6">
+                <div class="empty-state" style="padding:32px 0;">
+                  <div class="empty-state-icon">📋</div>
+                  <div class="empty-state-text">暂无推送推广位</div>
+                  <div style="color:#999;font-size:12px;">点击「＋ 添加推广位」选择推广位</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ====== 全局 Toast ====== -->
+<div class="toast-msg" id="globalToast">
+  ✅ 页面配置已成功保存！
+</div>
+
+<!-- ====== 收入流转图放大灯箱 ====== -->
+<div class="lightbox-overlay" id="chartLightbox" style="display:none">
+  <div class="lightbox-backdrop"></div>
+  <div class="lightbox-content">
+    <button class="lightbox-close" id="btnCloseLightbox">&times;</button>
+    <img src="images/收入流转图.jpg" alt="收入流转图" class="lightbox-img" id="lightboxImg">
+  </div>
+</div>
+
+<!-- ====== 导航分类编辑弹窗 ====== -->
+<div class="modal-overlay" id="cateModalOverlay" style="display:none">
+  <div class="benefit-modal cate-modal" id="cateModal">
+    <div class="modal-header"><h3>编辑导航菜单</h3><button class="modal-close" id="btnCloseCate">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-item"><label>图标 (Emoji 或图片链接)</label><input type="text" class="input" id="cateIconInput" placeholder="例如：🎁、🍔、⚡"></div>
+      <div class="form-item"><label>分类名称</label><input type="text" class="input" id="cateNameInput" placeholder="例如：限时秒杀"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelCate">取消</button>
+      <button class="btn-primary" id="btnSaveCate">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块标题编辑弹窗 ====== -->
+<div class="modal-overlay" id="moduleTitleModalOverlay" style="display:none">
+  <div class="benefit-modal" id="moduleTitleModal">
+    <div class="modal-header"><h3>编辑模块标题</h3><button class="modal-close" id="btnCloseModuleTitle">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-item"><label>模块 Logo (Emoji 或图片链接)</label><input type="text" class="input" id="moduleLogoInput" placeholder="例如：🔥 或图片链接"></div>
+      <div class="form-item"><label>模块文案</label><input type="text" class="input" id="moduleTitleInput" placeholder="如：淘宝红包"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelModuleTitle">取消</button>
+      <button class="btn-primary" id="btnSaveModuleTitle">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 卡片样式编辑弹窗 ====== -->
+<div class="modal-overlay" id="styleModalOverlay" style="display:none">
+  <div class="benefit-modal" id="styleModal">
+    <div class="modal-header"><h3>配置卡片样式</h3><button class="modal-close" id="btnCloseStyle">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-item"><label>卡片主标题</label><input type="text" class="input" id="styleMainTitle" placeholder="例如：10-18元百亿补贴"></div>
+      <div class="form-item"><label>卡片副标题</label><input type="text" class="input" id="styleSubTitle" placeholder="例如：疯抢大额补贴"></div>
+      <div class="form-item"><label>卡片图片 (URL 或颜色值)</label><input type="text" class="input" id="styleImg" placeholder="输入图片链接或颜色值如 #ff4d4f"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelStyle">取消</button>
+      <button class="btn-primary" id="btnSaveStyle">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 活动选择弹窗 ====== -->
+<div class="modal-overlay" id="activityModalOverlay" style="display:none">
+  <div class="benefit-modal" id="activityModal">
+    <div class="modal-header"><h3>配置关联活动</h3><button class="modal-close" id="btnCloseActivity">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-item">
+        <label>选择平台</label>
+        <select class="input" id="actPlatform">
+          <option value="美团联盟">美团联盟</option>
+          <option value="饿了么联盟">饿了么联盟</option>
+          <option value="淘宝联盟">淘宝联盟</option>
+          <option value="京东联盟">京东联盟</option>
+          <option value="滴滴出行">滴滴出行</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-item">
+        <label>关联活动类型</label>
+        <select class="input" id="actSelect">
+          <option value="外卖节">外卖节</option>
+          <option value="淘宝闪购">淘宝闪购</option>
+          <option value="叠红包">叠红包</option>
+          <option value="品牌日">品牌日</option>
+          <option value="百亿补贴">百亿补贴</option>
+        </select>
+      </div>
+      <div class="alert-info">🔴 <b>重要提示：</b>权益页只可配置口令和有小程序路径的活动，不支持普通网页链接。</div>
+
+      <!-- 新增第三方活动（可折叠） -->
+      <div class="new-thirdparty-section">
+        <div class="new-tp-toggle" id="btnToggleNewTP">▶ 新增第三方活动</div>
+        <div class="new-tp-form" id="newTPForm" style="display:none;">
+          <div class="form-item">
+            <label>活动名称</label>
+            <input type="text" class="input" id="newTpName" placeholder="例如：花小猪打车">
+          </div>
+          <div class="form-item">
+            <label>APPID</label>
+            <input type="text" class="input" id="newTpAppId" placeholder="例如：wx_hxz_2024_001">
+          </div>
+          <div class="new-tp-form-btns">
+            <button class="btn-default btn-sm" id="btnCancelNewTP">取消</button>
+            <button class="btn-primary btn-sm" id="btnSaveNewTP">确认新增</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelActivity">取消</button>
+      <button class="btn-primary" id="btnSaveActivity">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 选择推广位弹窗 ====== -->
+<div class="modal-overlay" id="promoPickerModalOverlay" style="display:none">
+  <div class="benefit-modal" id="promoPickerModal" style="width:480px;">
+    <div class="modal-header"><h3>选择推广位</h3><button class="modal-close" id="btnClosePromoPicker">&times;</button></div>
+    <div class="modal-body" style="padding:0;">
+      <div class="promo-picker-list" id="promoPickerList"></div>
+      <!-- 内联新建推广位 -->
+      <div class="promo-picker-create">
+        <div class="ppc-toggle" id="btnToggleInlineCreate">＋ 新建推广位</div>
+        <div class="ppc-form" id="inlineCreateForm" style="display:none;">
+          <select class="input" id="inlineCreateGroup">
+            <option value="">-- 选择分组 --</option>
+          </select>
+          <input type="text" class="input" id="inlineCreateName" placeholder="输入推广位名称">
+          <button class="btn btn-primary btn-sm" id="btnInlineCreate">确认创建</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-default" id="btnCancelPromoPicker">取消</button>
+      <button class="btn-primary" id="btnConfirmPromoPicker">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 关闭推广位确认弹窗 ====== -->
+<div class="modal-overlay" id="closeConfirmModalOverlay" style="display:none">
+  <div class="benefit-modal" id="closeConfirmModal" style="width:380px;">
+    <div class="modal-header"><h3>确认关闭</h3><button class="modal-close" id="btnCloseConfirm">&times;</button></div>
+    <div class="modal-body">
+      <p style="text-align:center;font-size:14px;color:#333;line-height:1.8;" id="closeConfirmMsg"></p>
+    </div>
+    <div class="modal-footer" style="text-align:center;">
+      <button class="btn-default" id="btnCancelCloseConfirm">取消</button>
+      <button class="btn-danger" id="btnConfirmClose">确认关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 推广位详情弹窗 ====== -->
+<div class="modal-overlay" id="promoDetailModalOverlay" style="display:none">
+  <div class="benefit-modal" id="promoDetailModal" style="width:640px;">
+    <div class="modal-header"><h3>推广位详情</h3><button class="modal-close" id="btnClosePromoDetail">&times;</button></div>
+    <div class="modal-body">
+      <!-- 推广位基本信息 -->
+      <div class="detail-section">
+        <h4 class="detail-section-title">📌 推广位信息</h4>
+        <div class="detail-info-grid" id="promoDetailInfo"></div>
+      </div>
+      <!-- 第三方活动列表 -->
+      <div class="detail-section">
+        <h4 class="detail-section-title">📋 第三方活动</h4>
+        <table class="detail-tpa-table">
+          <thead>
+            <tr>
+              <th>平台</th>
+              <th>活动名称</th>
+              <th>APPID</th>
+              <th>小程序路径</th>
+              <th class="col-detail-action">操作</th>
+            </tr>
+          </thead>
+          <tbody id="promoDetailTpaBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer" style="text-align:center;">
+      <button class="btn-default" id="btnCloseDetailFooter">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 推广位路径配置弹窗（卡片缺失模块） ====== -->
+<div class="modal-overlay" id="pathConfigModalOverlay" style="display:none">
+  <div class="benefit-modal" id="pathConfigModal" style="width:600px;">
+    <div class="modal-header"><h3>配置推广位路径</h3><button class="modal-close" id="btnClosePathConfig">&times;</button></div>
+    <div class="modal-body">
+      <!-- 活动信息 -->
+      <div class="path-cfg-activity-info">
+        <div class="path-cfg-info-item"><span class="path-cfg-info-label">活动平台</span><span class="path-cfg-info-value" id="pathCfgPlatform">-</span></div>
+        <div class="path-cfg-info-item"><span class="path-cfg-info-label">活动名称</span><span class="path-cfg-info-value" id="pathCfgName">-</span></div>
+        <div class="path-cfg-info-item"><span class="path-cfg-info-label">APPID</span><code class="path-cfg-appid-code" id="pathCfgAppId">-</code></div>
+      </div>
+      <!-- 推广位路径列表 -->
+      <div class="path-cfg-section-title">推广位路径</div>
+      <div class="path-cfg-table-wrap">
+        <table class="path-cfg-table">
+          <thead>
+            <tr>
+              <th class="path-cfg-col-name">推广位</th>
+              <th class="path-cfg-col-path">小程序路径</th>
+              <th class="path-cfg-col-status">状态</th>
+              <th class="path-cfg-col-action">操作</th>
+            </tr>
+          </thead>
+          <tbody id="pathCfgTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer" style="text-align:center;">
+      <button class="btn-default" id="btnCancelPathConfig">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 小程序APPID清单弹窗 ====== -->
+<div class="modal-overlay" id="mpAppIdListModalOverlay" style="display:none">
+  <div class="benefit-modal" id="mpAppIdListModal" style="width:640px;">
+    <div class="modal-header"><h3>📱 小程序APPID清单</h3><button class="modal-close" id="btnCloseMpAppIdList">&times;</button></div>
+    <div class="modal-body" style="padding:0;">
+      <table class="detail-tpa-table" id="mpAppIdTable">
+        <thead>
+          <tr>
+            <th>小程序名称</th>
+            <th>类型</th>
+            <th>APPID</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="mpAppIdTbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer" style="text-align:center;">
+      <button class="btn-default" id="btnCloseMpAppIdFooter">关闭</button>
+    </div>
+  </div>
+</div>

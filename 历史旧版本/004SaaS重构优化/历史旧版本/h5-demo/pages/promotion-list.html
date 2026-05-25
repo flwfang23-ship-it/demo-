@@ -1,0 +1,56 @@
+<!-- C03 推广位管理 - 列表页 -->
+<div class="page-container">
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <input class="input" id="promoSearchInput" placeholder="搜索推广位名称或ID...">
+    </div>
+    <button class="btn btn-primary" id="btnAddPromo">+ 新增推广位</button>
+  </div>
+
+  <!-- 列表表格 -->
+  <div class="table-wrapper card">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:200px">推广位名称</th>
+          <th style="width:180px">推广位ID</th>
+          <th style="width:100px">是否默认</th>
+          <th style="width:100px">绑定活动数</th>
+          <th style="width:180px">创建时间</th>
+          <th style="width:200px">操作</th>
+        </tr>
+      </thead>
+      <tbody id="promoTableBody">
+        <!-- JS动态渲染 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 分页 -->
+  <div class="pagination" id="promoPagination"></div>
+
+</div>
+
+<!-- ====== 新增/编辑推广位弹窗 ====== -->
+<div class="modal-overlay" id="promoFormOverlay" style="display:none">
+  <div class="modal-box" style="width:480px">
+    <div class="modal-header">
+      <h3 id="promoFormTitle">新增推广位</h3>
+      <button class="modal-close" id="btnPromoCancel">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span class="required">*</span>推广位名称</label>
+        <input class="input" id="promoNameInput" placeholder="请输入推广位名称" maxlength="20">
+        <div class="form-hint" id="promoFormHint">推广位名称不超过20个字符</div>
+        <div class="form-error" id="promoFormError" style="display:none"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="btnPromoCancel">取消</button>
+      <button class="btn btn-primary" id="btnPromoSave">保存</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,257 @@
+<style>
+/* C06 账号设置样式 */
+.account-form { max-width: 520px; }
+.account-form .form-group { margin-bottom: var(--spacing-lg); }
+.account-form .form-label { display: block; margin-bottom: var(--spacing-sm); font-size: var(--font-size-base); color: var(--color-text-primary); font-weight: 500; }
+.account-form .readonly-field { height: 32px; line-height: 32px; padding: 0 12px; background: #f5f5f5; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); color: var(--color-text-tertiary); font-size: var(--font-size-base); }
+.password-form { max-width: 400px; }
+.password-form .form-group { margin-bottom: var(--spacing-lg); }
+.password-form .form-label { display: block; margin-bottom: var(--spacing-sm); font-size: var(--font-size-base); color: var(--color-text-primary); font-weight: 500; }
+.log-filter { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-base); flex-wrap: wrap; }
+.log-filter label { font-size: var(--font-size-sm); color: var(--color-text-secondary); white-space: nowrap; }
+.log-filter .input { width: 150px; }
+.log-action-tag { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); background: #f0f0f0; color: var(--color-text-secondary); }
+.log-detail-text { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+.account-info-actions { display: flex; gap: var(--spacing-md); margin-top: var(--spacing-xl); }
+.account-tab-content { padding-top: var(--spacing-base); }
+</style>
+
+<div class="page-container" id="accountRoot">
+  <div class="page-header">
+    <h2>👤 账号设置</h2>
+  </div>
+
+  <!-- 内部Tab切换 -->
+  <div class="tabs" id="accountTabs">
+    <div class="tab-item active" data-tab="info">企业信息</div>
+    <div class="tab-item" data-tab="pwd">修改密码</div>
+    <div class="tab-item" data-tab="log">操作日志</div>
+  </div>
+
+  <!-- Tab 1: 企业信息 -->
+  <div class="account-tab-content" id="tabInfo">
+    <div class="card" style="padding:var(--spacing-xl);">
+      <div class="account-form" id="accountInfoForm">
+        <div class="form-group">
+          <div class="form-label">公司名称</div>
+          <input type="text" class="input input-lg" id="infoCompany" maxlength="50" placeholder="请输入公司名称">
+        </div>
+        <div class="form-group">
+          <div class="form-label">联系人</div>
+          <input type="text" class="input input-lg" id="infoContact" maxlength="20" placeholder="请输入联系人">
+        </div>
+        <div class="form-group">
+          <div class="form-label">联系电话</div>
+          <input type="text" class="input input-lg" id="infoPhone" maxlength="15" placeholder="请输入联系电话">
+        </div>
+        <div class="form-group">
+          <div class="form-label">注册手机号（不可修改）</div>
+          <div class="readonly-field" id="infoRegPhone">--</div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">注册时间</div>
+          <div class="readonly-field" id="infoCreatedAt">--</div>
+        </div>
+        <div class="account-info-actions">
+          <button class="btn btn-primary" id="btnSaveInfo">保存</button>
+          <button class="btn" id="btnResetInfo">重置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 修改密码 -->
+  <div class="account-tab-content" id="tabPwd" style="display:none;">
+    <div class="card" style="padding:var(--spacing-xl);">
+      <div class="password-form" id="pwdForm">
+        <div class="form-group">
+          <div class="form-label">旧密码</div>
+          <input type="password" class="input input-lg" id="pwdOld" placeholder="请输入旧密码">
+        </div>
+        <div class="form-group">
+          <div class="form-label">新密码</div>
+          <input type="password" class="input input-lg" id="pwdNew" placeholder="请输入新密码（6-20位）">
+        </div>
+        <div class="form-group">
+          <div class="form-label">确认新密码</div>
+          <input type="password" class="input input-lg" id="pwdConfirm" placeholder="请再次输入新密码">
+        </div>
+        <div class="account-info-actions">
+          <button class="btn btn-primary" id="btnChangePwd">修改密码</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 操作日志 -->
+  <div class="account-tab-content" id="tabLog" style="display:none;">
+    <div class="card" style="padding:var(--spacing-base) var(--spacing-lg);margin-bottom:var(--spacing-base);">
+      <div class="log-filter">
+        <label>时间范围：</label>
+        <input type="date" class="input" id="logDateStart" title="开始日期">
+        <span style="color:var(--color-text-tertiary)">至</span>
+        <input type="date" class="input" id="logDateEnd" title="结束日期">
+        <button class="btn btn-primary" id="logFilterBtn">查询</button>
+        <button class="btn" id="logFilterReset">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>操作时间</th>
+              <th>操作类型</th>
+              <th>IP地址</th>
+              <th>详情</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody"></tbody>
+        </table>
+      </div>
+      <div id="logPagination" style="padding:0 var(--spacing-base);"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var merchant = window.MockData.currentMerchant;
+  var LOGS = window.MockData.operationLogs;
+  var logPageSize = 20;
+  var logCurrentPage = 1;
+  var logFiltered = LOGS.slice();
+  var logDateStart = '';
+  var logDateEnd = '';
+
+  // ===== 企业信息 =====
+  function loadInfo() {
+    document.getElementById('infoCompany').value = merchant.company || '';
+    document.getElementById('infoContact').value = merchant.contact || '';
+    document.getElementById('infoPhone').value = merchant.contactPhone || '';
+    document.getElementById('infoRegPhone').textContent = merchant.phone || '--';
+    document.getElementById('infoCreatedAt').textContent = merchant.createdAt || '--';
+  }
+
+  document.getElementById('btnSaveInfo').addEventListener('click', function () {
+    merchant.company = document.getElementById('infoCompany').value.trim();
+    merchant.contact = document.getElementById('infoContact').value.trim();
+    merchant.contactPhone = document.getElementById('infoPhone').value.trim();
+    window.showToast('企业信息保存成功', 'success');
+    // 同步更新侧边栏
+    var nameEl = document.querySelector('.sidebar-user-name');
+    if (nameEl && merchant.company) nameEl.textContent = merchant.company;
+  });
+
+  document.getElementById('btnResetInfo').addEventListener('click', function () {
+    loadInfo();
+    window.showToast('已重置', 'info');
+  });
+
+  // ===== 修改密码 =====
+  document.getElementById('btnChangePwd').addEventListener('click', function () {
+    var oldPwd = document.getElementById('pwdOld').value;
+    var newPwd = document.getElementById('pwdNew').value;
+    var confirmPwd = document.getElementById('pwdConfirm').value;
+
+    if (!oldPwd) { window.showToast('请输入旧密码', 'error'); return; }
+    if (!newPwd) { window.showToast('请输入新密码', 'error'); return; }
+    if (newPwd.length < 6 || newPwd.length > 20) { window.showToast('新密码长度需为6-20位', 'error'); return; }
+    if (newPwd !== confirmPwd) { window.showToast('两次输入的新密码不一致', 'error'); return; }
+    if (oldPwd === newPwd) { window.showToast('新密码不能与旧密码相同', 'error'); return; }
+
+    // Demo模拟成功
+    window.showToast('密码修改成功，请重新登录', 'success');
+    document.getElementById('pwdOld').value = '';
+    document.getElementById('pwdNew').value = '';
+    document.getElementById('pwdConfirm').value = '';
+  });
+
+  // ===== 操作日志 =====
+  function renderLogs() {
+    var start = (logCurrentPage - 1) * logPageSize;
+    var pageData = logFiltered.slice(start, start + logPageSize);
+    var tbody = document.getElementById('logTableBody');
+    var rows = pageData.map(function (l) {
+      return '<tr>' +
+        '<td>' + l.time + '</td>' +
+        '<td><span class="log-action-tag">' + l.action + '</span></td>' +
+        '<td>' + l.ip + '</td>' +
+        '<td><span class="log-detail-text" title="' + l.detail + '">' + l.detail + '</span></td>' +
+        '</tr>';
+    }).join('');
+    if (!rows) {
+      rows = '<tr><td colspan="4"><div class="empty-state"><div class="empty-state-text">暂无操作日志</div></div></td></tr>';
+    }
+    tbody.innerHTML = rows;
+    renderLogPagination();
+  }
+
+  function renderLogPagination() {
+    var total = Math.ceil(logFiltered.length / logPageSize);
+    var container = document.getElementById('logPagination');
+    if (total <= 1) { container.innerHTML = ''; return; }
+    var html = '<div class="pagination">';
+    html += '<div class="page-btn" data-lpg="prev"' + (logCurrentPage === 1 ? ' disabled' : '') + '>‹</div>';
+    for (var i = 1; i <= total; i++) {
+      html += '<div class="page-btn' + (i === logCurrentPage ? ' active' : '') + '" data-lpg="' + i + '">' + i + '</div>';
+    }
+    html += '<div class="page-btn" data-lpg="next"' + (logCurrentPage === total ? ' disabled' : '') + '>›</div>';
+    html += '<span class="page-info">共 ' + logFiltered.length + ' 条</span>';
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  function applyLogFilter() {
+    logDateStart = document.getElementById('logDateStart').value;
+    logDateEnd = document.getElementById('logDateEnd').value;
+    logFiltered = LOGS.filter(function (l) {
+      var d = l.time.substring(0, 10);
+      if (logDateStart && d < logDateStart) return false;
+      if (logDateEnd && d > logDateEnd) return false;
+      return true;
+    });
+    logCurrentPage = 1;
+    renderLogs();
+  }
+
+  // 日志分页事件委托
+  document.getElementById('tabLog').addEventListener('click', function (e) {
+    var pgBtn = e.target.closest('[data-lpg]');
+    if (pgBtn && !pgBtn.disabled) {
+      var pg = pgBtn.getAttribute('data-lpg');
+      if (pg === 'prev' && logCurrentPage > 1) { logCurrentPage--; renderLogs(); }
+      else if (pg === 'next' && logCurrentPage < Math.ceil(logFiltered.length / logPageSize)) { logCurrentPage++; renderLogs(); }
+      else if (!isNaN(+pg)) { logCurrentPage = +pg; renderLogs(); }
+    }
+  });
+
+  document.getElementById('logFilterBtn').addEventListener('click', applyLogFilter);
+  document.getElementById('logFilterReset').addEventListener('click', function () {
+    document.getElementById('logDateStart').value = '';
+    document.getElementById('logDateEnd').value = '';
+    applyLogFilter();
+  });
+
+  // ===== Tab切换 =====
+  var tabs = { info: document.getElementById('tabInfo'), pwd: document.getElementById('tabPwd'), log: document.getElementById('tabLog') };
+  document.getElementById('accountTabs').addEventListener('click', function (e) {
+    var tab = e.target.closest('.tab-item');
+    if (!tab) return;
+    var key = tab.getAttribute('data-tab');
+    // 切换active
+    document.querySelectorAll('#accountTabs .tab-item').forEach(function (t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    // 切换内容
+    Object.keys(tabs).forEach(function (k) { tabs[k].style.display = k === key ? 'block' : 'none'; });
+    // 首次切换到日志时渲染
+    if (key === 'log' && !document.getElementById('logTableBody').innerHTML) {
+      renderLogs();
+    }
+  });
+
+  // 初始化
+  loadInfo();
+})();
+</script>

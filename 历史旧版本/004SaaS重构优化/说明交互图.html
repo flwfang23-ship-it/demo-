@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>操作手册引导</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: #f5f7fb;
+    }
+
+    /* 顶部H5区域 */
+    .guide-wrapper {
+      width: 100%;
+      height: 15vh;
+      min-height: 190px; /* 稍微增加一点最小高度，以容纳按钮 */
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+      border-bottom: 1px solid #e8edf5;
+      overflow: hidden;
+    }
+
+    .guide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .guide-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .guide-title .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f8cff, #6aa8ff);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 6px 18px rgba(79, 140, 255, 0.25);
+    }
+
+    .guide-title h2 {
+      font-size: 20px;
+      color: #1f2d3d;
+      font-weight: 700;
+    }
+
+    .guide-desc {
+      font-size: 13px;
+      color: #8b97a8;
+    }
+
+    /* 保持4个卡片并排一行 */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      height: calc(100% - 50px);
+    }
+
+    /* 卡片基础样式调整 */
+    .step-card {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1px solid #eef2f7;
+      transition: all 0.25s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* 改为顶端对齐，为底部按钮留出自然空间 */
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(31, 45, 61, 0.08);
+      border-color: #dce8ff;
+    }
+
+    /* 右下角的发光背景装饰 */
+    .step-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(
+        rgba(79, 140, 255, 0.08),
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    /* --- 第 1 行：序号 + 标题 + 图标 --- */
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #4f8cff, #73a9ff);
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1f2d3d;
+      flex-grow: 1;
+      white-space: nowrap;
+    }
+
+    .step-emoji {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* --- 第 2 行：描述文案强制单行 --- */
+    .step-content {
+      font-size: 12px;
+      color: #6b778c;
+      white-space: nowrap; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* --- 第 3 行：交互按钮区 --- */
+    .step-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto; /* 自动推到底部 */
+      padding-top: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    /* 主按钮（显眼） */
+    .btn-primary {
+      background: #4f8cff;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(79, 140, 255, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #3a79f0;
+      box-shadow: 0 4px 10px rgba(79, 140, 255, 0.3);
+    }
+
+    /* 次按钮（柔和描边） */
+    .btn-outline {
+      background: #f4f8ff;
+      color: #4f8cff;
+      border: 1px solid #dce8ff;
+    }
+
+    .btn-outline:hover {
+      background: #e6f0ff;
+      border-color: #4f8cff;
+    }
+
+    /* 响应式调整 */
+    @media screen and (max-width: 1280px) {
+      .guide-wrapper {
+        height: auto;
+      }
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .steps {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="guide-wrapper">
+
+    <div class="guide-header">
+      <div class="guide-title">
+        <div class="icon">📘</div>
+        <h2>操作手册</h2>
+      </div>
+
+      <div class="guide-desc">
+        快速完成推广位配置与活动推广
+      </div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-badge">01</div>
+          <div class="step-title">选择推广位</div>
+          <div class="step-emoji">➕</div>
+        </div>
+        <div class="step-content" title="点击右侧「＋ 添加推广位」按钮，勾选需要推广的推广位，仅已选中的推广位会在权益页生效。">
+          点击右侧「＋ 添加推广位」按钮，勾选需要推广的推广位，仅已选中的推广位会在权益页生效。
+        </div>
+        <div class="step-actions">
+          <button class="btn btn-primary">➕ 添加推广位</button>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-badge">02</div>
+          <div class="step-title">编辑样式</div>
+          <div class="step-emoji">🎨</div>
+        </div>
+        <div class="step-content" title="鼠标悬浮左侧导航分类，点击 ✏️ 编辑图标与名称；点击「样式」按钮修改文案与图片。">
+          鼠标悬浮左侧导航分类，点击 ✏️ 编辑图标与名称；点击「样式」按钮修改文案与图片。
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-badge">03</div>
+          <div class="step-title">选择活动</div>
+          <div class="step-emoji">🔗</div>
+        </div>
+        <div class="step-content" title="点击「活动」按钮选择推广活动；外部活动需额外配置推广位路径，保存后立即生效。">
+          点击「活动」按钮选择推广活动；外部活动需额外配置推广位路径，保存后立即生效。
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-badge">04</div>
+          <div class="step-title">开始推广</div>
+          <div class="step-emoji">🚀</div>
+        </div>
+        <div class="step-content" title="在右侧推广位列表复制小程序路径或 H5 路径，粘贴至企微推广信息即可开始推广。">
+          在右侧推广位列表复制小程序路径或 H5 路径，粘贴至企微推广信息即可开始推广。
+        </div>
+        <div class="step-actions">
+          <button class="btn btn-outline">小程序APPID清单</button>
+          <button class="btn btn-outline">收入扭转图</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

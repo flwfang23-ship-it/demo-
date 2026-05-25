@@ -1,0 +1,380 @@
+<!-- 推广分组管理 - 独立页签 -->
+<div class="page-container promo-group-page">
+
+  <!-- 工具栏 -->
+  <div class="promo-group-page-toolbar">
+    <div class="search-bar" style="flex:1;max-width:320px;">
+      <input class="input" id="pgSearchInput" placeholder="搜索分组名称...">
+    </div>
+    <button class="btn btn-primary btn-sm" id="pgBtnAdd">+ 新增分组</button>
+  </div>
+
+  <!-- 分组列表表格 -->
+  <div class="table-wrapper card">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:200px">分组名称</th>
+          <th style="width:140px">包含推广位数</th>
+          <th style="width:180px">创建时间</th>
+          <th style="width:120px">操作</th>
+        </tr>
+      </thead>
+      <tbody id="pgTableBody">
+        <!-- JS动态渲染 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 空状态 -->
+  <div class="empty-state pg-empty-state" id="pgEmptyState" style="display:none;">
+    <div class="empty-state-icon">📁</div>
+    <div class="empty-state-text">暂无分组数据</div>
+  </div>
+
+  <!-- 分页 -->
+  <div class="pagination" id="pgPagination"></div>
+
+</div>
+
+<!-- ====== 新增/编辑分组弹窗 ====== -->
+<div class="modal-overlay" id="pgFormOverlay" style="display:none;">
+  <div class="modal-box" style="width:420px;">
+    <div class="modal-header">
+      <h3 id="pgFormTitle">新增推广分组</h3>
+      <button class="modal-close" id="pgFormCancel">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span class="required">*</span>分组名称</label>
+        <input class="input" id="pgNameInput" placeholder="请输入分组名称" maxlength="10">
+        <div class="form-hint" style="display:none;" id="pgFormHint"></div>
+        <div class="form-error" id="pgFormError" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="pgFormCancel2">取消</button>
+      <button class="btn btn-primary" id="pgFormSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 10;
+  var currentPage = 1;
+  var editingGroupId = null; // null=新增模式, 有值=编辑模式
+
+  function getGroups() {
+    return window.MockData.promotionGroups || [];
+  }
+
+  function getFilteredGroups() {
+    var keyword = (document.getElementById('pgSearchInput').value || '').trim().toLowerCase();
+    return getGroups().filter(function (g) {
+      return !keyword || (g.name || '').toLowerCase().includes(keyword);
+    });
+  }
+
+  /* 获取分组的创建时间：有createTime就用，否则取组内最早推广位的创建时间 */
+  function getGroupCreateTime(group) {
+    if (group.createTime) return group.createTime;
+    var times = (group.promotions || []).map(function (p) { return p.createTime; }).filter(Boolean).sort();
+    return times[0] || '—';
+  }
+
+  /* 获取分组下推广位数量 */
+  function getPromoCount(group) {
+    return (group.promotions || []).length;
+  }
+
+  function renderTable() {
+    var list = getFilteredGroups();
+    var total = list.length;
+    var totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var pageList = list.slice(start, start + PAGE_SIZE);
+
+    var tbody = document.getElementById('pgTableBody');
+    var emptyEl = document.getElementById('pgEmptyState');
+    var paginationEl = document.getElementById('pgPagination');
+    var tableWrapper = document.querySelector('.promo-group-page .table-wrapper');
+
+    if (total === 0) {
+      tbody.innerHTML = '';
+      emptyEl.style.display = 'flex';
+      tableWrapper.style.display = 'none';
+      paginationEl.innerHTML = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    tableWrapper.style.display = '';
+
+    var html = '';
+    pageList.forEach(function (g) {
+      var count = getPromoCount(g);
+      var time = getGroupCreateTime(g);
+      var isDefault = g.isDefault;
+
+      html += '<tr' + (isDefault ? ' class="pg-row-default"' : '') + '>';
+      html += '<td><span class="pg-group-name">' + escapeHtml(g.name) + '</span>' + (isDefault ? '<span class="pg-default-tag">默认</span>' : '') + '</td>';
+      html += '<td>' + count + '</td>';
+      html += '<td>' + escapeHtml(time) + '</td>';
+      html += '<td><div class="pg-actions">';
+      html += '<button class="btn btn-sm btn-link pg-btn-edit" data-id="' + g.id + '">编辑</button>';
+      if (!isDefault) {
+        html += '<button class="btn btn-sm btn-link pg-btn-del" data-id="' + g.id + '" style="color:var(--color-danger)">删除</button>';
+      }
+      html += '</div></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+
+    // 分页
+    var pagHtml = '';
+    if (currentPage > 1) {
+      pagHtml += '<button class="page-btn" data-page="' + (currentPage - 1) + '">上一页</button>';
+    }
+    for (var i = 1; i <= totalPages; i++) {
+      if (i === currentPage) {
+        pagHtml += '<span class="page-btn active">' + i + '</span>';
+      } else {
+        pagHtml += '<button class="page-btn" data-page="' + i + '">' + i + '</button>';
+      }
+    }
+    if (currentPage < totalPages) {
+      pagHtml += '<button class="page-btn" data-page="' + (currentPage + 1) + '">下一页</button>';
+    }
+    paginationEl.innerHTML = pagHtml;
+
+    bindTableEvents();
+  }
+
+  function bindTableEvents() {
+    // 编辑按钮
+    document.querySelectorAll('.pg-btn-edit').forEach(function (btn) {
+      btn.onclick = function () { openForm('edit', this.getAttribute('data-id')); };
+    });
+    // 删除按钮
+    document.querySelectorAll('.pg-btn-del').forEach(function (btn) {
+      btn.onclick = function () { confirmDelete(this.getAttribute('data-id')); };
+    });
+  }
+
+  /* 搜索 */
+  function initSearch() {
+    var input = document.getElementById('pgSearchInput');
+    var timer;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        currentPage = 1;
+        renderTable();
+      }, 300);
+    });
+  }
+
+  /* ====== 新增/编辑弹窗 ====== */
+  function openForm(mode, groupId) {
+    var overlay = document.getElementById('pgFormOverlay');
+    var title = document.getElementById('pgFormTitle');
+    var input = document.getElementById('pgNameInput');
+    var error = document.getElementById('pgFormError');
+
+    if (mode === 'add') {
+      editingGroupId = null;
+      title.textContent = '新增推广分组';
+      input.value = '';
+    } else {
+      var group = getGroups().find(function (g) { return g.id === groupId; });
+      if (!group) return;
+      editingGroupId = groupId;
+      title.textContent = '编辑推广分组';
+      input.value = group.name;
+    }
+
+    error.style.display = 'none';
+    openModalById('pgFormOverlay');
+    setTimeout(function () { input.focus(); input.select(); }, 100);
+  }
+
+  function validateName(name) {
+    if (!name || !name.trim()) return '分组名称不能为空';
+    var trimmed = name.trim();
+    if (trimmed.length > 10) return '分组名称不超过10个字符';
+    var dup = getGroups().find(function (g) {
+      return g.name === trimmed && g.id !== editingGroupId;
+    });
+    if (dup) return '分组名称已存在，请使用其他名称';
+    return null;
+  }
+
+  function saveForm() {
+    var input = document.getElementById('pgNameInput');
+    var error = document.getElementById('pgFormError');
+    var name = input.value;
+    var err = validateName(name);
+    if (err) {
+      error.textContent = err;
+      error.style.display = 'block';
+      return;
+    }
+
+    var groups = getGroups();
+    var trimmed = name.trim();
+
+    if (editingGroupId) {
+      // 编辑模式：更新名称，并同步组内推广位的 groupName
+      var group = groups.find(function (g) { return g.id === editingGroupId; });
+      if (group) {
+        group.name = trimmed;
+        (group.promotions || []).forEach(function (p) { p.groupName = trimmed; });
+      }
+    } else {
+      // 新增模式
+      var newId = 'GROUP_' + Date.now();
+      var now = formatDateTime(new Date());
+      groups.push({
+        id: newId,
+        name: trimmed,
+        isDefault: false,
+        createTime: now,
+        promotions: []
+      });
+    }
+
+    closeModalById('pgFormOverlay');
+    window.showToast(editingGroupId ? '分组名称已更新' : '分组创建成功');
+    currentPage = 1;
+    renderTable();
+  }
+
+  /* ====== 删除 ====== */
+  function confirmDelete(groupId) {
+    var group = getGroups().find(function (g) { return g.id === groupId; });
+    if (!group) return;
+    var count = getPromoCount(group);
+    var msg = count > 0
+      ? '该分组下有 ' + count + ' 个推广位，删除后它们将移至"默认分组"。确认删除分组「' + group.name + '」？'
+      : '确认删除分组「' + group.name + '」？';
+
+    pgShowConfirm('删除分组', msg, function () {
+      executeDelete(groupId);
+    });
+  }
+
+  function executeDelete(groupId) {
+    var groups = getGroups();
+    var idx = groups.findIndex(function (g) { return g.id === groupId; });
+    if (idx === -1) return;
+
+    var group = groups[idx];
+    var defaultGroup = groups.find(function (g) { return g.isDefault; });
+
+    // 将该分组下的推广位移至默认分组
+    if (defaultGroup && group.promotions && group.promotions.length > 0) {
+      group.promotions.forEach(function (p) {
+        p.groupId = defaultGroup.id;
+        p.groupName = defaultGroup.name;
+        defaultGroup.promotions.push(p);
+      });
+    }
+
+    groups.splice(idx, 1);
+    window.showToast('分组已删除');
+    currentPage = 1;
+    renderTable();
+  }
+
+  /* ====== 弹窗事件 ====== */
+  function initModals() {
+    document.getElementById('pgFormCancel').onclick = function () { closeModalById('pgFormOverlay'); };
+    document.getElementById('pgFormCancel2').onclick = function () { closeModalById('pgFormOverlay'); };
+    document.getElementById('pgFormSave').onclick = function () { saveForm(); };
+
+    // 回车保存
+    document.getElementById('pgNameInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') saveForm();
+    });
+  }
+
+  /* 点击蒙层关闭 */
+  document.getElementById('pgFormOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeModalById('pgFormOverlay');
+  });
+
+  /* 分页 */
+  document.getElementById('pgPagination').addEventListener('click', function (e) {
+    var btn = e.target.closest('.page-btn');
+    if (btn && btn.dataset.page) {
+      currentPage = parseInt(btn.dataset.page, 10);
+      renderTable();
+    }
+  });
+
+  /* 新增分组按钮 */
+  document.getElementById('pgBtnAdd').addEventListener('click', function () {
+    openForm('add');
+  });
+
+  /* ====== 工具函数 ====== */
+  function pgShowConfirm(title, msg, onConfirm) {
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'display:flex;z-index:2000;';
+    overlay.innerHTML =
+      '<div class="modal-box" style="width:420px;">' +
+      '<div class="modal-header"><h3>' + escapeHtml(title) + '</h3></div>' +
+      '<div class="modal-body" style="white-space:pre-line;font-size:14px;color:#333;">' + escapeHtml(msg) + '</div>' +
+      '<div class="modal-footer">' +
+      '<button class="btn pg-confirm-cancel">取消</button>' +
+      '<button class="btn btn-danger pg-confirm-ok">确定删除</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('.pg-confirm-cancel').onclick = function () { overlay.remove(); };
+    overlay.querySelector('.pg-confirm-ok').onclick = function () { overlay.remove(); if (onConfirm) onConfirm(); };
+    overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
+  }
+
+  function escapeHtml(str) {
+    str = String(str || '');
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function formatDateTime(date) {
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    var h = String(date.getHours()).padStart(2, '0');
+    var min = String(date.getMinutes()).padStart(2, '0');
+    return y + '-' + m + '-' + d + ' ' + h + ':' + min;
+  }
+
+  function closeModalById(overlayId) {
+    var modal = document.getElementById(overlayId);
+    if (!modal) return;
+    modal.style.display = 'none';
+  }
+
+  function openModalById(overlayId) {
+    var modal = document.getElementById(overlayId);
+    if (!modal) return;
+    modal.style.display = 'flex';
+  }
+
+  /* ====== 入口 ====== */
+  window.__initPromotionGroupList = function () {
+    initSearch();
+    initModals();
+    renderTable();
+  };
+
+})();
+</script>
