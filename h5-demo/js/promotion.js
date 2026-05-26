@@ -75,24 +75,24 @@
           ? '<span class="tag tag-success">推广中</span>'
           : '<span class="tag tag-warning">推广中</span>';
         missingCell = missingCount === 0
-          ? '<span class="tag tag-success">0</span>'
-          : '<span class="tag tag-warning">' + missingCount + '</span>';
+          ? '<span class="tag tag-success">已配置完毕</span>'
+          : '<span class="tag tag-warning">' + missingCount + '项待配置</span>';
 
         var h5Path = p.h5Path || '';
         h5PathCell =
-          '<div class="promo-col-path">' +
-          '<span class="path-cell has-value" title="' + escAttr(h5Path) + '">' + escHtml(truncatePath(h5Path, 22)) + '</span>' +
+          '<div class="promo-path-input-row">' +
+          '<div class="promo-path-display" title="' + escAttr(h5Path) + '">' + escHtml(h5Path || '—') + '</div>' +
           '<button class="btn-copy-path" data-copy="' + escAttr(h5Path) + '" title="复制H5路径">' + copyIcon() + '</button>' +
           '</div>';
 
-        // 小程序推广路径：路径 + 查看按钮（同 H5路径 格式）
+        // 小程序推广路径：输入框风格只读展示 + 复制 + 查看按钮
         var miniPath = p.miniPath || '';
         var mpCount = getMpCount(p.id);
         mpCell =
-          '<div class="promo-col-path">' +
-          '<span class="path-cell has-value" title="' + escAttr(miniPath) + '">' + escHtml(truncatePath(miniPath, 10)) + '</span>' +
+          '<div class="promo-path-input-row">' +
+          '<div class="promo-path-display" title="' + escAttr(miniPath) + '">' + escHtml(miniPath || '—') + '</div>' +
           (mpCount > 0
-            ? '<button class="btn btn-sm btn-link btn-mp-list" data-id="' + p.id + '" style="padding:0;font-size:11px;white-space:nowrap">查看(' + mpCount + ')</button>'
+            ? '<button class="btn btn-sm btn-link btn-mp-list" data-id="' + p.id + '">查看小程序路径</button>'
             : '') +
           '</div>';
       } else {
@@ -815,6 +815,9 @@
           h5Path: h5Path,
           benefitPageEnabled: benefitEnabled
         });
+
+        // 自动填充预设活动到取链清单
+        autoPopulateChainList(newId);
       }
       window.showToast('推广位已创建', 'success');
     }
@@ -951,6 +954,53 @@
     });
   }
 
+  // ===== 获取预设活动列表 =====
+  function getPresetActivities() {
+    var activities = (window.MockData && window.MockData.availableActivities) ? window.MockData.availableActivities : [];
+    return activities.filter(function (a) { return !!a.isPreset; });
+  }
+
+  // ===== 为新推广位自动填充预设活动到取链清单 =====
+  function autoPopulateChainList(promoId) {
+    var presetActs = getPresetActivities();
+    if (presetActs.length === 0) return;
+
+    if (!window.MockData.promoChainList) window.MockData.promoChainList = {};
+    if (!window.MockData.promoChainList[promoId]) window.MockData.promoChainList[promoId] = [];
+
+    presetActs.forEach(function (act) {
+      // 避免重复添加
+      var exists = window.MockData.promoChainList[promoId].some(function (item) {
+        return item.activityId === act.id;
+      });
+      if (exists) return;
+
+      var platformLabel = act.supplierLabel || act.platformLabel || act.platform || '';
+      var baseUrl = act.h5Path || 'https://tbk.sunnycoffee.com/h5/' + act.id.toLowerCase();
+      window.MockData.promoChainList[promoId].push({
+        platform: platformLabel,
+        activityName: act.name,
+        activityId: act.id,
+        longUrl: baseUrl + '?promoId=' + promoId.toLowerCase(),
+        shortUrl: 'https://t.sun.im/' + randomShortCode(),
+        deeplink: (act.platform || '') + '://tbk/benefit?promoId=' + promoId.toLowerCase(),
+        miniPath: act.miniPath || '',
+        qrcode: '',
+        groupToken: act.password ? '￥' + act.password + '￥' : '',
+        searchToken: '搜：' + act.name
+      });
+    });
+  }
+
+  function randomShortCode() {
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var code = '';
+    for (var i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
+
   // ===== 取链清单 =====
   function getChainCount(promoId) {
     var list = (window.MockData && window.MockData.promoChainList) ? window.MockData.promoChainList : {};
@@ -1036,8 +1086,16 @@
     var promo = findPromoById(promoId);
     if (!promo) return;
 
-    var chainData = (window.MockData && window.MockData.promoChainList) ? window.MockData.promoChainList : {};
-    chainAllItems = chainData[promoId] || [];
+    // 确保数据结构存在
+    if (!window.MockData.promoChainList) window.MockData.promoChainList = {};
+    if (!window.MockData.promoChainList[promoId]) window.MockData.promoChainList[promoId] = [];
+
+    // 如果该推广位还没有取链数据，自动填充预设活动
+    if (window.MockData.promoChainList[promoId].length === 0) {
+      autoPopulateChainList(promoId);
+    }
+
+    chainAllItems = window.MockData.promoChainList[promoId];
     chainCurrentPromo = { name: promo.name, id: promoId };
     chainFilterPlatform = 'all';
     chainFilterKeyword = '';
@@ -1134,7 +1192,22 @@
   }
 
   // ===== 新增链接 =====
-  var presetActivities = ['淘宝闪购', '外卖节', '品牌日', '消费日'];
+  function getChainAddActivityOptions() {
+    var acts = [];
+    // 预设活动
+    var presetActs = getPresetActivities();
+    presetActs.forEach(function (a) {
+      acts.push({ id: a.id, name: a.name, platform: a.supplierLabel || a.platformLabel || a.platform || '', isPreset: true });
+    });
+    // 已有取链清单中的活动（去重）
+    chainAllItems.forEach(function (item) {
+      var dup = acts.some(function (a) { return a.name === item.activityName; });
+      if (!dup) {
+        acts.push({ id: item.activityId, name: item.activityName, platform: item.platform, isPreset: false });
+      }
+    });
+    return acts;
+  }
 
   function openChainAddModal() {
     try {
@@ -1174,6 +1247,7 @@
     var rows = document.getElementById('chainAddRows');
     if (!rows) return;
     var idx = rows.children.length;
+    var activityOptions = getChainAddActivityOptions();
     var div = document.createElement('div');
     div.className = 'chain-add-row';
     div.setAttribute('data-idx', idx);
@@ -1182,11 +1256,16 @@
         '<option value="">选择平台</option>' +
         '<option value="美团">美团联盟</option>' +
         '<option value="饿了么">饿了么联盟</option>' +
+        '<option value="京东">京东</option>' +
+        '<option value="打车">打车</option>' +
         '<option value="其他">其他</option>' +
       '</select>' +
-      '<select class="input chain-add-activity" data-idx="' + idx + '" style="width:140px">' +
+      '<select class="input chain-add-activity" data-idx="' + idx + '" style="width:160px">' +
         '<option value="">选择活动</option>' +
-        presetActivities.map(function (a) { return '<option value="' + a + '">' + a + '</option>'; }).join('') +
+        activityOptions.map(function (a) {
+          var label = a.name + (a.isPreset ? ' [预设]' : '');
+          return '<option value="' + escAttr(a.id) + '" data-name="' + escAttr(a.name) + '" data-platform="' + escAttr(a.platform) + '" data-preset="' + (a.isPreset ? '1' : '0') + '">' + escHtml(label) + '</option>';
+        }).join('') +
         '<option value="__new__">+ 新增活动</option>' +
       '</select>' +
       '<span class="chain-add-new-fields" data-idx="' + idx + '" style="display:none">' +
@@ -1219,15 +1298,30 @@
     if (!row) return;
     var platform = row.querySelector('.chain-add-platform').value;
     var activitySel = row.querySelector('.chain-add-activity');
-    // 重建活动列表：平台为"其他"时保留"+ 新增活动"，否则移除
     var currentVal = activitySel.value;
-    var options = presetActivities.map(function (a) { return '<option value="' + a + '">' + a + '</option>'; }).join('');
+
+    var activityOptions = getChainAddActivityOptions();
+    if (platform) {
+      // 映射平台值到数据中的 supplier
+      var platformMap = { '美团': 'meituan', '饿了么': 'eleme', '京东': 'jd', '打车': 'taxi' };
+      var mappedPlatform = platformMap[platform] || platform;
+      activityOptions = activityOptions.filter(function (a) {
+        var ap = a.platform || '';
+        return ap.indexOf(platform) !== -1 || ap.indexOf(mappedPlatform) !== -1;
+      });
+    }
+
+    var options = activityOptions.map(function (a) {
+      var label = a.name + (a.isPreset ? ' [预设]' : '');
+      return '<option value="' + escAttr(a.id) + '" data-name="' + escAttr(a.name) + '" data-platform="' + escAttr(a.platform) + '" data-preset="' + (a.isPreset ? '1' : '0') + '">' + escHtml(label) + '</option>';
+    }).join('');
+
     if (platform === '其他') {
       options += '<option value="__new__">+ 新增活动</option>';
     } else {
-      // 如果之前选了__new__，重置
       if (currentVal === '__new__') currentVal = '';
     }
+
     activitySel.innerHTML = '<option value="">选择活动</option>' + options;
     activitySel.value = currentVal;
     onChainAddActivityChange(idx);
@@ -1251,7 +1345,8 @@
     var added = 0;
     rows.forEach(function (row) {
       var platform = row.querySelector('.chain-add-platform').value;
-      var activityVal = row.querySelector('.chain-add-activity').value;
+      var activitySel = row.querySelector('.chain-add-activity');
+      var activityVal = activitySel.value;
       if (!platform || !activityVal) return;
 
       var activityName, activityId;
@@ -1262,8 +1357,29 @@
         activityId = appidInput ? appidInput.value.trim() : '';
         if (!activityName || !activityId) return;
       } else {
-        activityName = activityVal;
-        activityId = 'ACT_NEW_' + String(Date.now()).slice(-6) + String(Math.floor(Math.random() * 100)).padStart(2, '0');
+        // 从选中的 option 获取活动信息
+        var selectedOption = activitySel.selectedOptions[0];
+        activityName = selectedOption ? selectedOption.getAttribute('data-name') : activityVal;
+        activityId = activityVal;
+
+        // 查找活动原始数据获取更多信息
+        var activities = (window.MockData && window.MockData.availableActivities) ? window.MockData.availableActivities : [];
+        var foundAct = activities.find(function (a) { return a.id === activityId; });
+        if (foundAct) {
+          chainAllItems.push({
+            platform: platform,
+            activityName: foundAct.name,
+            activityId: foundAct.id,
+            longUrl: (foundAct.h5Path || 'https://tbk.sunnycoffee.com/h5/' + foundAct.id.toLowerCase()) + '?promoId=' + (chainCurrentPromo ? chainCurrentPromo.id : ''),
+            shortUrl: 'https://t.sun.im/' + randomShortCode(),
+            deeplink: (foundAct.platform || '') + '://tbk/benefit?promoId=' + (chainCurrentPromo ? chainCurrentPromo.id : ''),
+            miniPath: foundAct.miniPath || '',
+            groupToken: foundAct.password ? '￥' + foundAct.password + '￥' : '',
+            searchToken: '搜：' + foundAct.name
+          });
+          added++;
+          return; // 跳过下面的通用push
+        }
       }
 
       chainAllItems.push({

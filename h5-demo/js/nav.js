@@ -38,14 +38,16 @@
     {
       id: 'g05', label: '账户设置', icon: '⚙️',
       children: [
-        { id: 'g05-a', label: '企业信息', page: 'account-info' },
-        { id: 'g05-b', label: '修改密码', page: 'account-pwd' }
+        { id: 'g05-a', label: '账号信息', page: 'account-user' },
+        { id: 'g05-b', label: '企业信息', page: 'account-info' },
+        { id: 'g05-c', label: '修改密码', page: 'account-pwd' },
+        { id: 'g05-d', label: '操作日志', page: 'account-log' }
       ]
     },
     {
-      id: 'g06', label: '演示专用', icon: '🔑',
+      id: 'g06', label: '登录注册', icon: '🔑',
       children: [
-        { id: 'g06-a', label: '登录页', page: 'login' }
+        { id: 'g06-a', label: 'G01 用户登录注册', page: 'login' }
       ]
     }
   ];
@@ -54,6 +56,7 @@
 
   // page aliases: multiple menu entries → single file, tab param to pre-select tab
   var pageAliases = {
+    'account-user': { page: 'account', tab: 'user' },
     'account-info': { page: 'account', tab: 'info' },
     'account-pwd':  { page: 'account', tab: 'pwd' },
     'account-log':  { page: 'account', tab: 'log' }

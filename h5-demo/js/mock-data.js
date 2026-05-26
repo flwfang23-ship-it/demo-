@@ -12,9 +12,23 @@ window.MockData = {
     role: '商户管理员',
     phone: '138****8888',
     company: '阳光咖啡连锁管理有限公司',
+    creditCode: '91330100MA2B0P8X2K',
+    legalPerson: '张明阳',
     contact: '张经理',
     contactPhone: '13800008888',
-    createdAt: '2025-06-15'
+    createdAt: '2025-06-15',
+    lastLoginTime: '2026-05-26 09:30:25',
+    accountStatus: 'normal'
+  },
+
+  // ===== 营业执照OCR模拟识别结果 =====
+  ocrMockResult: {
+    creditCode: '91330100MA2B0P8X2K',
+    companyName: '阳光咖啡连锁管理有限公司',
+    legalPerson: '张明阳',
+    registeredCapital: '500万元人民币',
+    establishedDate: '2018-06-15',
+    businessScope: '餐饮管理服务；咖啡饮品制售；预包装食品销售；企业管理咨询；品牌策划；市场营销策划；计算机软硬件技术开发'
   },
 
   // ===== 统计概览 =====
@@ -114,125 +128,170 @@ window.MockData = {
 
   // ===== 可选活动池（活动选择器用） =====
   availableActivities: [
-    { id: 'ACT001', name: '新店开业·全场8折', subtitle: '全场咖啡饮品8折优惠', image: '', commission: '8%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/act001?from=eleme', password: 'KouLing888', category: '促销活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-06-30', startDate: '2026-05-01', venueId: 'VENUE_001' },
-    { id: 'ACT002', name: '会员日·买一赠一', subtitle: '每周三会员专享', image: '', commission: '6%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'meituan', platformLabel: '美团', miniPath: 'pages/member/index', h5Path: 'https://tbk.sunnycoffee.com/h5/member-day', password: '', category: '会员活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-15', startDate: '2026-04-01', venueId: 'VENUE_002' },
-    { id: 'ACT003', name: '夏日冰饮·第二杯半价', subtitle: '冰饮系列清凉一夏', image: '', commission: '5%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/summer-ice', password: 'SummerIce666', category: '促销活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-08-31', startDate: '2026-05-15', venueId: 'VENUE_003' },
-    { id: 'ACT004', name: '咖啡豆·限时特惠', subtitle: '精选阿拉比卡咖啡豆', image: '', commission: '10%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'meituan', platformLabel: '美团', miniPath: 'pages/goods/detail?id=456', h5Path: 'https://tbk.sunnycoffee.com/h5/coffee-bean-sale', password: '', category: '商品活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-06-15', startDate: '2026-05-01', venueId: 'VENUE_004' },
-    { id: 'ACT005', name: '新品·抹茶拿铁上市', subtitle: '日式抹茶遇见醇香咖啡', image: '', commission: '7%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/new/product', h5Path: 'https://tbk.sunnycoffee.com/h5/matcha-latte', password: '', category: '新品活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-07-01', startDate: '2026-05-10', venueId: 'VENUE_005' },
-    { id: 'ACT006', name: '储值卡·充200送30', subtitle: '储值更优惠，多充多送', image: '', commission: '3%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/recharge-card', password: 'VIP2024CZ', category: '会员活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-09-30', startDate: '2026-03-01', venueId: 'VENUE_006' },
-    { id: 'ACT007', name: '外卖免配送费', subtitle: '订单满29元免配送费', image: '', commission: '4%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'eleme', platformLabel: '饿了么', miniPath: 'pages/order/free', h5Path: 'https://tbk.sunnycoffee.com/h5/free-delivery', password: '', category: '配送活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-06-30', startDate: '2026-05-01', venueId: 'VENUE_007' },
-    { id: 'ACT008', name: '积分享好礼', subtitle: '消费积分兑换精美礼品', image: '', commission: '2%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/points-gift', password: 'PointsGift88', category: '会员活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-12-31', startDate: '2026-01-01', venueId: 'VENUE_008' },
-    { id: 'ACT009', name: '周末早鸟特惠', subtitle: '周末早晨7-9点专属折扣', image: '', commission: '6%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/weekend/earlybird', h5Path: 'https://tbk.sunnycoffee.com/h5/weekend-earlybird', password: '', category: '促销活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-31', startDate: '2026-05-01', venueId: 'VENUE_009' },
-    { id: 'ACT010', name: '联名款·限定杯', subtitle: '艺术家联名限定款杯套', image: '', commission: '8%', jumpType: 'missing', jumpTypeLabel: '⚠ 缺属性', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: '', password: '', category: '品牌活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-08-15', startDate: '2026-05-20', venueId: 'VENUE_010' },
-    { id: 'ACT011', name: '毕业季·学生特惠', subtitle: '凭学生证享专属折扣', image: '', commission: '5%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/graduation-sale', password: 'Graduation2024', category: '促销活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-15', startDate: '2026-05-20', venueId: 'VENUE_011' },
-    { id: 'ACT012', name: '冰激凌咖啡·尝鲜价', subtitle: '阿芙佳朵系列全新上线', image: '', commission: '7%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/icecream/new', h5Path: 'https://tbk.sunnycoffee.com/h5/icecream-coffee', password: '', category: '新品活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-06-30', startDate: '2026-05-15', venueId: 'VENUE_012' },
-    { id: 'ACT013', name: '京东超市·满199减100', subtitle: '京东超市品类满减', image: '', commission: '12%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/jd/market', h5Path: 'https://tbk.sunnycoffee.com/h5/jd-market', password: '', category: '平台活动', supplier: 'jd', supplierLabel: '京东', endDate: '2026-07-31', startDate: '2026-05-01', venueId: 'VENUE_013' },
-    { id: 'ACT014', name: '京东秒杀·限时特价', subtitle: '每日10点京东秒杀专场', image: '', commission: '9%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'jd', platformLabel: '京东', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/jd-flash', password: 'JDFlash666', category: '平台活动', supplier: 'jd', supplierLabel: '京东', endDate: '2026-06-30', startDate: '2026-05-10', venueId: 'VENUE_014' },
-    { id: 'ACT015', name: '滴滴出行·新用户立减', subtitle: '滴滴新用户首单立减10元', image: '', commission: '5%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'taxi', platformLabel: '打车', miniPath: 'pages/didi/newuser', h5Path: 'https://tbk.sunnycoffee.com/h5/didi-new', password: '', category: '出行活动', supplier: 'taxi', supplierLabel: '打车', endDate: '2026-08-31', startDate: '2026-05-01', venueId: 'VENUE_015' },
-    { id: 'ACT016', name: '高德打车·周末特惠', subtitle: '高德打车周末8折优惠', image: '', commission: '4%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'taxi', platformLabel: '打车', miniPath: 'pages/gaode/weekend', h5Path: 'https://tbk.sunnycoffee.com/h5/gaode-weekend', password: '', category: '出行活动', supplier: 'taxi', supplierLabel: '打车', endDate: '2026-07-31', startDate: '2026-05-15', venueId: 'VENUE_016' }
+    { id: 'ACT001', name: '新店开业·全场8折', subtitle: '全场咖啡饮品8折优惠', image: '', commission: '8%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/act001?from=eleme', password: 'KouLing888', category: '促销活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-06-30', startDate: '2026-05-01', venueId: 'VENUE_001', isPreset: false },
+    { id: 'ACT002', name: '会员日·买一赠一', subtitle: '每周三会员专享', image: '', commission: '6%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'meituan', platformLabel: '美团', miniPath: 'pages/member/index', h5Path: 'https://tbk.sunnycoffee.com/h5/member-day', password: '', category: '会员活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-15', startDate: '2026-04-01', venueId: 'VENUE_002', isPreset: false },
+    { id: 'ACT003', name: '夏日冰饮·第二杯半价', subtitle: '冰饮系列清凉一夏', image: '', commission: '5%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/summer-ice', password: 'SummerIce666', category: '促销活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-08-31', startDate: '2026-05-15', venueId: 'VENUE_003', isPreset: false },
+    { id: 'ACT004', name: '咖啡豆·限时特惠', subtitle: '精选阿拉比卡咖啡豆', image: '', commission: '10%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'meituan', platformLabel: '美团', miniPath: 'pages/goods/detail?id=456', h5Path: 'https://tbk.sunnycoffee.com/h5/coffee-bean-sale', password: '', category: '商品活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-06-15', startDate: '2026-05-01', venueId: 'VENUE_004', isPreset: false },
+    { id: 'ACT005', name: '新品·抹茶拿铁上市', subtitle: '日式抹茶遇见醇香咖啡', image: '', commission: '7%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/new/product', h5Path: 'https://tbk.sunnycoffee.com/h5/matcha-latte', password: '', category: '新品活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-07-01', startDate: '2026-05-10', venueId: 'VENUE_005', isPreset: false },
+    { id: 'ACT006', name: '储值卡·充200送30', subtitle: '储值更优惠，多充多送', image: '', commission: '3%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/recharge-card', password: 'VIP2024CZ', category: '会员活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-09-30', startDate: '2026-03-01', venueId: 'VENUE_006', isPreset: false },
+    { id: 'ACT007', name: '外卖免配送费', subtitle: '订单满29元免配送费', image: '', commission: '4%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'eleme', platformLabel: '饿了么', miniPath: 'pages/order/free', h5Path: 'https://tbk.sunnycoffee.com/h5/free-delivery', password: '', category: '配送活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-06-30', startDate: '2026-05-01', venueId: 'VENUE_007', isPreset: false },
+    { id: 'ACT008', name: '积分享好礼', subtitle: '消费积分兑换精美礼品', image: '', commission: '2%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/points-gift', password: 'PointsGift88', category: '会员活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-12-31', startDate: '2026-01-01', venueId: 'VENUE_008', isPreset: false },
+    { id: 'ACT009', name: '周末早鸟特惠', subtitle: '周末早晨7-9点专属折扣', image: '', commission: '6%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/weekend/earlybird', h5Path: 'https://tbk.sunnycoffee.com/h5/weekend-earlybird', password: '', category: '促销活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-31', startDate: '2026-05-01', venueId: 'VENUE_009', isPreset: false },
+    { id: 'ACT010', name: '联名款·限定杯', subtitle: '艺术家联名限定款杯套', image: '', commission: '8%', jumpType: 'missing', jumpTypeLabel: '⚠ 缺属性', platform: 'eleme', platformLabel: '饿了么', miniPath: '', h5Path: '', password: '', category: '品牌活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-08-15', startDate: '2026-05-20', venueId: 'VENUE_010', isPreset: false },
+    { id: 'ACT011', name: '毕业季·学生特惠', subtitle: '凭学生证享专属折扣', image: '', commission: '5%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'meituan', platformLabel: '美团', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/graduation-sale', password: 'Graduation2024', category: '促销活动', supplier: 'meituan', supplierLabel: '美团联盟', endDate: '2026-07-15', startDate: '2026-05-20', venueId: 'VENUE_011', isPreset: false },
+    { id: 'ACT012', name: '冰激凌咖啡·尝鲜价', subtitle: '阿芙佳朵系列全新上线', image: '', commission: '7%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/icecream/new', h5Path: 'https://tbk.sunnycoffee.com/h5/icecream-coffee', password: '', category: '新品活动', supplier: 'eleme', supplierLabel: '饿了么联盟', endDate: '2026-06-30', startDate: '2026-05-15', venueId: 'VENUE_012', isPreset: false },
+    { id: 'ACT013', name: '京东超市·满199减100', subtitle: '京东超市品类满减', image: '', commission: '12%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'jd', platformLabel: '京东', miniPath: 'pages/jd/market', h5Path: 'https://tbk.sunnycoffee.com/h5/jd-market', password: '', category: '平台活动', supplier: 'jd', supplierLabel: '京东', endDate: '2026-07-31', startDate: '2026-05-01', venueId: 'VENUE_013', isPreset: false },
+    { id: 'ACT014', name: '京东秒杀·限时特价', subtitle: '每日10点京东秒杀专场', image: '', commission: '9%', jumpType: 'password', jumpTypeLabel: '📋 需口令', platform: 'jd', platformLabel: '京东', miniPath: '', h5Path: 'https://tbk.sunnycoffee.com/h5/jd-flash', password: 'JDFlash666', category: '平台活动', supplier: 'jd', supplierLabel: '京东', endDate: '2026-06-30', startDate: '2026-05-10', venueId: 'VENUE_014', isPreset: false },
+    { id: 'ACT015', name: '滴滴出行·新用户立减', subtitle: '滴滴新用户首单立减10元', image: '', commission: '5%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'taxi', platformLabel: '打车', miniPath: 'pages/didi/newuser', h5Path: 'https://tbk.sunnycoffee.com/h5/didi-new', password: '', category: '出行活动', supplier: 'taxi', supplierLabel: '打车', endDate: '2026-08-31', startDate: '2026-05-01', venueId: 'VENUE_015', isPreset: false },
+    { id: 'ACT016', name: '高德打车·周末特惠', subtitle: '高德打车周末8折优惠', image: '', commission: '4%', jumpType: 'miniprogram', jumpTypeLabel: '📱 小程序路径', platform: 'taxi', platformLabel: '打车', miniPath: 'pages/gaode/weekend', h5Path: 'https://tbk.sunnycoffee.com/h5/gaode-weekend', password: '', category: '出行活动', supplier: 'taxi', supplierLabel: '打车', endDate: '2026-07-31', startDate: '2026-05-15', venueId: 'VENUE_016', isPreset: false }
   ],
 
-  // ===== 第三方活动（需求3：「其他」Tab） =====
+  // ===== 第三方活动分组（总后台维护） =====
+  thirdPartyGroups: [
+    { id: 'TG_001', name: '京东', sortOrder: 1, status: 'enabled', createdAt: '2026-01-01' },
+    { id: 'TG_002', name: '打车', sortOrder: 2, status: 'enabled', createdAt: '2026-01-01' },
+    { id: 'TG_003', name: '其他', sortOrder: 3, status: 'enabled', createdAt: '2026-01-01' }
+  ],
+
+  // ===== 第三方活动（B04 活动管理-第三方） =====
+  // isPreset=true：总后台预设、全用户可见、客户端只可编辑路径不可删除
+  // isPreset=false：客户端自建、可编辑可删除
   thirdPartyActivities: [
+    // === 京东分组 - 预设活动 ===
     {
       id: 'TPA_001',
-      platform: '花小猪',
-      name: '花小猪打车',
-      appId: 'wx_hxz_2024_001',
+      groupId: 'TG_001',
+      name: '京东零食节',
+      appId: 'wx_jd_snack_2026',
       isPreset: true,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/huaxiaozhu/index?promoId=p_default',
-        'PROMO_002': 'pages/huaxiaozhu/index?promoId=p_002',
-        'PROMO_003': '',
-        'PROMO_004': '',
-        'PROMO_005': '',
+        'PROMO_001': 'pages/jd/snack/index?promoId=p_default',
+        'PROMO_002': 'pages/jd/snack/index?promoId=p_002',
+        'PROMO_003': 'pages/jd/snack/index?promoId=p_003',
+        'PROMO_004': 'pages/jd/snack/index?promoId=p_004',
+        'PROMO_005': 'pages/jd/snack/index?promoId=p_005',
         'PROMO_006': '',
         'PROMO_007': '',
-        'PROMO_008': '',
+        'PROMO_008': 'pages/jd/snack/index?promoId=p_008',
         'PROMO_009': ''
       }
     },
     {
       id: 'TPA_002',
-      platform: '滴滴',
-      name: '滴滴出行',
-      appId: 'wx_didi_2024_002',
+      groupId: 'TG_001',
+      name: '京东水果节',
+      appId: 'wx_jd_fruit_2026',
       isPreset: true,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/didi/index?promoId=p_default',
-        'PROMO_002': 'pages/didi/index?promoId=p_002',
-        'PROMO_003': '',
-        'PROMO_004': '',
-        'PROMO_005': '',
+        'PROMO_001': 'pages/jd/fruit/index?promoId=p_default',
+        'PROMO_002': 'pages/jd/fruit/index?promoId=p_002',
+        'PROMO_003': 'pages/jd/fruit/index?promoId=p_003',
+        'PROMO_004': 'pages/jd/fruit/index?promoId=p_004',
+        'PROMO_005': 'pages/jd/fruit/index?promoId=p_005',
         'PROMO_006': '',
         'PROMO_007': '',
-        'PROMO_008': '',
+        'PROMO_008': 'pages/jd/fruit/index?promoId=p_008',
         'PROMO_009': ''
       }
     },
+    // === 打车分组 - 预设活动 ===
     {
       id: 'TPA_003',
-      platform: '电影票',
-      name: '电影票',
-      appId: 'wx_movie_2026_001',
+      groupId: 'TG_002',
+      name: '花小猪周末特惠',
+      appId: 'wx_hxz_weekend_2026',
       isPreset: true,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/movie/index?promoId=p_default',
-        'PROMO_002': 'pages/movie/index?promoId=p_002',
-        'PROMO_003': '',
+        'PROMO_001': 'pages/huaxiaozhu/weekend?promoId=p_default',
+        'PROMO_002': 'pages/huaxiaozhu/weekend?promoId=p_002',
+        'PROMO_003': 'pages/huaxiaozhu/weekend?promoId=p_003',
         'PROMO_004': '',
         'PROMO_005': '',
         'PROMO_006': '',
         'PROMO_007': '',
-        'PROMO_008': '',
+        'PROMO_008': 'pages/huaxiaozhu/weekend?promoId=p_008',
         'PROMO_009': ''
       }
     },
     {
       id: 'TPA_004',
-      platform: '美团外卖',
-      name: '美团外卖红包',
-      appId: 'wx_mtwm_2025_001',
-      isPreset: false,
+      groupId: 'TG_002',
+      name: '滴滴出行立减',
+      appId: 'wx_didi_discount_2026',
+      isPreset: true,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/mtwm/index?promoId=p_default',
-        'PROMO_002': 'pages/mtwm/coupon?promoId=p_002',
-        'PROMO_003': 'pages/mtwm/member?promoId=p_003',
-        'PROMO_004': 'pages/mtwm/new?promoId=p_004',
-        'PROMO_005': 'pages/mtwm/summer?promoId=p_005',
+        'PROMO_001': 'pages/didi/discount?promoId=p_default',
+        'PROMO_002': 'pages/didi/discount?promoId=p_002',
+        'PROMO_003': '',
+        'PROMO_004': 'pages/didi/discount?promoId=p_004',
+        'PROMO_005': '',
         'PROMO_006': '',
         'PROMO_007': '',
-        'PROMO_008': '',
+        'PROMO_008': 'pages/didi/discount?promoId=p_008',
         'PROMO_009': ''
       }
     },
+    // === 其他分组 - 预设活动 ===
     {
       id: 'TPA_005',
-      platform: '饿了么',
-      name: '饿了么外卖',
-      appId: 'wx_eleme_2025_002',
-      isPreset: false,
+      groupId: 'TG_003',
+      name: '电影票立减',
+      appId: 'wx_movie_discount_2026',
+      isPreset: true,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/eleme/index?promoId=p_default',
-        'PROMO_002': 'pages/eleme/index?promoId=p_002',
+        'PROMO_001': 'pages/movie/discount?promoId=p_default',
+        'PROMO_002': 'pages/movie/discount?promoId=p_002',
+        'PROMO_003': '',
+        'PROMO_004': 'pages/movie/discount?promoId=p_004',
+        'PROMO_005': '',
+        'PROMO_006': '',
+        'PROMO_007': '',
+        'PROMO_008': 'pages/movie/discount?promoId=p_008',
+        'PROMO_009': ''
+      }
+    },
+    // === 其他分组 - 用户自建活动 ===
+    {
+      id: 'TPA_006',
+      groupId: 'TG_003',
+      name: '美团外卖红包',
+      appId: 'wx_mtwm_coupon_2026',
+      isPreset: false,
+      useUnifiedPath: false,
+      unifiedPath: '',
+      promoPaths: {
+        'PROMO_001': 'pages/mtwm/coupon?promoId=p_default',
+        'PROMO_002': 'pages/mtwm/coupon?promoId=p_002',
         'PROMO_003': '',
         'PROMO_004': '',
         'PROMO_005': '',
         'PROMO_006': '',
         'PROMO_007': '',
-        'PROMO_008': '',
+        'PROMO_008': 'pages/mtwm/coupon?promoId=p_008',
         'PROMO_009': ''
       }
     },
     {
-      id: 'TPA_006',
-      platform: '京东',
-      name: '京东秒杀',
-      appId: 'wx_jd_2025_003',
+      id: 'TPA_007',
+      groupId: 'TG_003',
+      name: '饿了么外卖',
+      appId: 'wx_eleme_takeout_2026',
       isPreset: false,
+      useUnifiedPath: false,
+      unifiedPath: '',
       promoPaths: {
-        'PROMO_001': 'pages/jd/index?promoId=p_default',
-        'PROMO_002': 'pages/jd/seckill?promoId=p_002',
+        'PROMO_001': 'pages/eleme/takeout?promoId=p_default',
+        'PROMO_002': 'pages/eleme/takeout?promoId=p_002',
         'PROMO_003': '',
         'PROMO_004': '',
         'PROMO_005': '',

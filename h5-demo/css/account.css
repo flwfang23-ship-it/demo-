@@ -42,12 +42,322 @@
   font-weight: 500;
 }
 
+/* ===== 密码修改步骤条 ===== */
+.pwd-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  max-width: 400px;
+}
+.pwd-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+.pwd-step .step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.pwd-step.current {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.pwd-step.current .step-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.pwd-step.done {
+  color: var(--color-success);
+}
+.pwd-step.done .step-dot {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+.pwd-step-line {
+  width: 40px;
+  height: 2px;
+  background: #e8e8e8;
+  margin: 0 8px;
+  transition: background 0.3s;
+}
+.pwd-step-line.done {
+  background: var(--color-success);
+}
+.pwd-step-panel {
+  display: none;
+  animation: pageFadeIn 0.25s ease both;
+}
+.pwd-step-panel.active {
+  display: block;
+}
+
+/* ===== 账号信息卡片 ===== */
+.account-user-card {
+  max-width: 600px;
+}
+.user-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.user-avatar-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1677ff, #69b1ff);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.user-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.user-display-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.user-role-tag {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: #e6f4ff;
+  color: var(--color-primary);
+  width: fit-content;
+}
+.user-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-base);
+}
+.user-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.user-detail-item .detail-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+.user-detail-item .detail-value {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+.status-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.status-tag.normal {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+.status-tag.disabled {
+  background: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+}
+.status-tag.pending {
+  background: #fffbe6;
+  color: #faad14;
+  border: 1px solid #ffe58f;
+}
+
+/* ===== 营业执照OCR上传 ===== */
+.ocr-section {
+  max-width: 600px;
+}
+.ocr-section-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-base);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ocr-demo-badge {
+  font-size: 11px;
+  font-weight: 400;
+  color: #faad14;
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+.ocr-upload-zone {
+  border: 2px dashed #d9d9d9;
+  border-radius: var(--radius-lg);
+  padding: 32px var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+  position: relative;
+}
+.ocr-upload-zone:hover {
+  border-color: var(--color-primary);
+  background: #e6f4ff;
+}
+.ocr-upload-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.ocr-upload-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+.ocr-upload-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+.ocr-upload-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* OCR 已上传区域 */
+.ocr-preview-area {
+  display: none;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.ocr-preview-area.show {
+  display: block;
+}
+.ocr-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px var(--spacing-base);
+  background: #fafafa;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.ocr-preview-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ocr-preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  background: #fff;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.ocr-scanning {
+  padding: 16px var(--spacing-base);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+.ocr-scanning .scanning-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: ocrPulse 1.2s ease infinite;
+}
+.ocr-scanning .scanning-dot:nth-child(2) { animation-delay: 0.2s; }
+.ocr-scanning .scanning-dot:nth-child(3) { animation-delay: 0.4s; }
+.ocr-scanning .scanning-dot:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes ocrPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* OCR 识别结果卡片 */
+.ocr-result-card {
+  display: none;
+  padding: var(--spacing-base);
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: var(--radius-md);
+}
+.ocr-result-card.show {
+  display: block;
+}
+.ocr-result-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: #52c41a;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ocr-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px var(--spacing-xl);
+}
+.ocr-result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ocr-result-item .ocr-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+.ocr-result-item .ocr-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+.ocr-result-item.full-width {
+  grid-column: 1 / -1;
+}
+.ocr-result-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: var(--spacing-md);
+}
+
 /* 操作日志筛选 */
 .log-filter {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-base);
+  flex-wrap: wrap;
 }
 .log-filter label {
   font-size: var(--font-size-sm);

@@ -59,6 +59,17 @@
 
 </div>
 
+<!-- ====== 平台推广位路径配置抽屉 ====== -->
+<div class="drawer-overlay" id="platformPathDrawerOverlay" style="display:none;">
+  <div class="drawer" id="platformPathDrawer" style="width:580px">
+    <div class="drawer-header">
+      <h3 class="drawer-title">配置推广位路径</h3>
+      <button class="drawer-close" id="btnPpdClose">&times;</button>
+    </div>
+    <div class="drawer-body" id="ppdBody"></div>
+  </div>
+</div>
+
 <!-- ====== 模块标题编辑弹窗 ====== -->
 <div class="modal-overlay benefit-modal-overlay" id="moduleTitleModalOverlay" style="display:none">
   <div class="benefit-modal" id="moduleTitleModal">
@@ -125,6 +136,25 @@
 
 <!-- ====== Toast ====== -->
 <div class="toast-msg" id="benefitToast"></div>
+
+<!-- ====== 保存前缺失活动检查弹窗 ====== -->
+<div class="modal-overlay benefit-modal-overlay" id="missingCheckOverlay" style="display:none">
+  <div class="benefit-modal missing-check-modal" id="missingCheckModal">
+    <div class="modal-header">
+      <h3>推广位活动路径检查</h3>
+      <button class="modal-close" id="btnCloseMissingCheck">&times;</button>
+    </div>
+    <div class="modal-body" id="missingCheckBody"></div>
+    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:#ff4d4f" id="missingCheckHint"></span>
+      <div>
+        <button class="btn-default" id="btnCancelMissing">取消</button>
+        <button class="btn-default" id="btnSkipMissing">稍后处理</button>
+        <button class="btn-primary" id="btnSaveMissing">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ====== 收入流转图放大灯箱 ====== -->
 <div class="lightbox-overlay" id="chartLightbox" style="display:none">

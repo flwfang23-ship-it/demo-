@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 小程序SaaS营销平台</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-family);
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-wrapper {
+      display: flex;
+      width: 960px;
+      min-height: 540px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* ===== 左侧品牌区 ===== */
+    .login-brand {
+      width: 420px;
+      background: linear-gradient(160deg, #1677ff 0%, #0958d9 50%, #003eb3 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .login-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+    .brand-logo {
+      width: 72px;
+      height: 72px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(4px);
+    }
+    .brand-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 1px;
+    }
+    .brand-subtitle {
+      font-size: 15px;
+      opacity: 0.75;
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .brand-features {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+    .brand-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      opacity: 0.85;
+    }
+    .brand-feature-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ===== 右侧表单区 ===== */
+    .login-form-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 44px;
+      min-width: 0;
+    }
+
+    /* Tab切换 */
+    .login-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 32px;
+    }
+    .login-tab {
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #999;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+      user-select: none;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .login-tab:hover { color: var(--color-primary); }
+    .login-tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* 表单面板 */
+    .login-panel { display: none; animation: fadeIn 0.25s ease both; }
+    .login-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 二维码区域 */
+    .qrcode-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .qrcode-box {
+      width: 200px;
+      height: 200px;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .qrcode-box .qr-placeholder {
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 2px dashed #d9d9d9;
+      border-radius: 8px;
+      color: #bfbfbf;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .qrcode-box.expired .qr-placeholder {
+      opacity: 0.3;
+    }
+    .qrcode-expired-mask {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.85);
+      border-radius: 8px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .qrcode-box.expired .qrcode-expired-mask { display: flex; }
+    .qrcode-expired-mask .refresh-icon {
+      font-size: 28px;
+      color: var(--color-primary);
+    }
+    .qrcode-expired-mask .refresh-text {
+      font-size: 13px;
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+    .qrcode-tip {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+    .qrcode-scanned-tip {
+      font-size: 14px;
+      color: var(--color-success);
+      font-weight: 500;
+      display: none;
+    }
+    .qrcode-box.scanned .qr-placeholder { border-color: var(--color-success); background: #f6ffed; }
+    .qrcode-box.scanned .qrcode-scanned-tip { display: block; }
+    .qrcode-box.scanned .qrcode-tip { display: none; }
+
+    /* 表单 */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+    .form-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.12);
+    }
+    .form-input.error {
+      border-color: var(--color-danger);
+    }
+    .form-input.error:focus {
+      box-shadow: 0 0 0 2px rgba(255,77,79,0.12);
+    }
+    .input-password-wrap {
+      position: relative;
+    }
+    .input-password-wrap .form-input {
+      padding-right: 40px;
+    }
+    .pwd-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    .pwd-toggle:hover { color: #666; background: #f5f5f5; }
+
+    .form-error-msg {
+      font-size: 12px;
+      color: var(--color-danger);
+      margin-top: 4px;
+      display: none;
+    }
+    .form-error-msg.show { display: block; }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .form-options a {
+      color: var(--color-primary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .form-options a:hover { color: var(--color-primary-hover); }
+
+    .btn-login {
+      width: 100%;
+      height: 44px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-login:hover { background: var(--color-primary-hover); }
+    .btn-login:active { background: var(--color-primary-active); }
+    .btn-login:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-login.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* loading spinner */
+    .btn-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .btn-login.loading .btn-spinner { display: block; }
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login.loading::after { content: '登录中...'; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .form-switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+    }
+    .form-switch a {
+      color: var(--color-primary);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .form-switch a:hover { color: var(--color-primary-hover); }
+
+    /* 验证码行 */
+    .sms-row {
+      display: flex;
+      gap: 10px;
+    }
+    .sms-row .form-input { flex: 1; }
+    .btn-sms {
+      width: 120px;
+      height: 42px;
+      flex-shrink: 0;
+      background: #fff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-sms:hover { background: #e6f4ff; }
+    .btn-sms:disabled {
+      color: #999;
+      border-color: #d9d9d9;
+      cursor: not-allowed;
+      background: #f5f5f5;
+    }
+
+    /* Toast */
+    #loginToast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .login-toast-item {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: toastIn 0.3s ease;
+      white-space: nowrap;
+    }
+    .login-toast-item.success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+    .login-toast-item.error { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+    .login-toast-item.info { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 响应式 */
+    @media (max-width: 1000px) {
+      .login-wrapper { width: 94vw; flex-direction: column; min-height: auto; }
+      .login-brand { width: 100%; padding: 32px 24px; }
+      .brand-features { display: none; }
+      .login-form-area { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginToast"></div>
+
+  <div class="login-wrapper">
+    <!-- 左侧品牌区 -->
+    <div class="login-brand">
+      <div class="brand-logo">🚀</div>
+      <div class="brand-title">SaaS营销平台</div>
+      <div class="brand-subtitle">小程序推广管理后台<br>一站式活动推广与效果追踪</div>
+      <div class="brand-features">
+        <div class="brand-feature-item">
+          <span class="brand-feature-icon">📱</span>
+          <span>多平台小程序统一管理</span>
+        </div>
+        <div class="brand-feature-item">
+          <span class="brand-feature-icon">📢</span>
+          <span>活动推广位灵活配置</span>
+        </div>
+        <div class="brand-feature-item">
+          <span class="brand-feature-icon">📊</span>
+          <span>推广效果实时数据报表</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧表单区 -->
+    <div class="login-form-area">
+      <!-- Tab切换 -->
+      <div class="login-tabs">
+        <button class="login-tab active" data-tab="qrcode">扫码登录</button>
+        <button class="login-tab" data-tab="password">账号密码登录</button>
+      </div>
+
+      <!-- ====== 扫码登录面板 ====== -->
+      <div class="login-panel active" id="panelQrcode">
+        <div class="qrcode-section">
+          <div class="qrcode-box" id="qrcodeBox">
+            <div class="qr-placeholder">
+              <!-- TODO: 替换为真实二维码，需要公众号appid和密钥 -->
+              二维码<br>（待配置appid）
+            </div>
+            <div class="qrcode-expired-mask" id="qrcodeExpiredMask" onclick="refreshQrcode()">
+              <span class="refresh-icon">🔄</span>
+              <span class="refresh-text">点击刷新</span>
+            </div>
+          </div>
+          <div class="qrcode-tip">请使用微信扫码登录</div>
+          <div class="qrcode-scanned-tip">扫描成功，请在手机端确认</div>
+        </div>
+      </div>
+
+      <!-- ====== 账号密码登录面板 ====== -->
+      <div class="login-panel" id="panelPassword">
+        <form id="loginForm" autocomplete="off">
+          <div class="form-group">
+            <label>手机号</label>
+            <input type="text" class="form-input" id="loginPhone" placeholder="请输入11位手机号" maxlength="11" autocomplete="off">
+            <div class="form-error-msg" id="loginPhoneError"></div>
+          </div>
+          <div class="form-group">
+            <label>密码</label>
+            <div class="input-password-wrap">
+              <input type="password" class="form-input" id="loginPassword" placeholder="请输入密码" maxlength="20" autocomplete="off">
+              <button type="button" class="pwd-toggle" id="pwdToggle" onclick="togglePassword()">👁</button>
+            </div>
+            <div class="form-error-msg" id="loginPwdError"></div>
+          </div>
+          <div class="form-options">
+            <a onclick="showForgotPassword()">忘记密码？</a>
+          </div>
+          <button type="submit" class="btn-login" id="btnLogin">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">登 录</span>
+          </button>
+          <div class="form-switch">
+            还没有账号？<a onclick="switchToRegister()">立即注册</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- ====== 注册面板 ====== -->
+      <div class="login-panel" id="panelRegister">
+        <form id="registerForm" autocomplete="off">
+          <div class="form-group">
+            <label>手机号</label>
+            <input type="text" class="form-input" id="regPhone" placeholder="请输入11位手机号" maxlength="11" autocomplete="off">
+            <div class="form-error-msg" id="regPhoneError"></div>
+          </div>
+          <div class="form-group">
+            <label>验证码</label>
+            <div class="sms-row">
+              <input type="text" class="form-input" id="regSmsCode" placeholder="请输入6位验证码" maxlength="6" autocomplete="off">
+              <button type="button" class="btn-sms" id="btnSms" onclick="sendSmsCode()">获取验证码</button>
+            </div>
+            <div class="form-error-msg" id="regSmsError"></div>
+          </div>
+          <div class="form-group">
+            <label>设置密码</label>
+            <div class="input-password-wrap">
+              <input type="password" class="form-input" id="regPassword" placeholder="6-20位，需包含字母和数字" maxlength="20" autocomplete="off">
+              <button type="button" class="pwd-toggle" onclick="toggleRegPassword()">👁</button>
+            </div>
+            <div class="form-error-msg" id="regPwdError"></div>
+          </div>
+          <div class="form-group">
+            <label>确认密码</label>
+            <input type="password" class="form-input" id="regPasswordConfirm" placeholder="请再次输入密码" maxlength="20" autocomplete="off">
+            <div class="form-error-msg" id="regPwdConfirmError"></div>
+          </div>
+          <button type="submit" class="btn-login" id="btnRegister">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">注 册</span>
+          </button>
+          <div class="form-switch">
+            已有账号？<a onclick="switchToLogin()">返回登录</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- ====== 忘记密码面板 ====== -->
+      <div class="login-panel" id="panelForgotPwd">
+        <form id="forgotForm" autocomplete="off">
+          <div class="form-group">
+            <label>手机号</label>
+            <input type="text" class="form-input" id="forgotPhone" placeholder="请输入11位手机号" maxlength="11" autocomplete="off">
+            <div class="form-error-msg" id="forgotPhoneError"></div>
+          </div>
+          <div class="form-group">
+            <label>验证码</label>
+            <div class="sms-row">
+              <input type="text" class="form-input" id="forgotSmsCode" placeholder="请输入6位验证码" maxlength="6" autocomplete="off">
+              <button type="button" class="btn-sms" id="btnForgotSms" onclick="sendForgotSmsCode()">获取验证码</button>
+            </div>
+            <div class="form-error-msg" id="forgotSmsError"></div>
+          </div>
+          <div class="form-group">
+            <label>新密码</label>
+            <div class="input-password-wrap">
+              <input type="password" class="form-input" id="forgotNewPwd" placeholder="6-20位，需包含字母和数字" maxlength="20" autocomplete="off">
+              <button type="button" class="pwd-toggle" onclick="toggleForgotPassword()">👁</button>
+            </div>
+            <div class="form-error-msg" id="forgotPwdError"></div>
+          </div>
+          <div class="form-group">
+            <label>确认密码</label>
+            <input type="password" class="form-input" id="forgotPwdConfirm" placeholder="请再次输入新密码" maxlength="20" autocomplete="off">
+            <div class="form-error-msg" id="forgotPwdConfirmError"></div>
+          </div>
+          <button type="submit" class="btn-login" id="btnResetPwd">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">重置密码</span>
+          </button>
+          <div class="form-switch">
+            <a onclick="switchToLogin()">← 返回登录</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== State =====
+    var currentTab = 'qrcode';
+    var currentPanel = 'qrcode'; // 'qrcode' | 'password' | 'register' | 'forgotPwd'
+    var smsTimer = null;
+    var smsCountdown = 0;
+    var forgotSmsTimer = null;
+    var forgotSmsCountdown = 0;
+
+    // ===== Mock 用户数据 =====
+    var mockUsers = {
+      '13800008888': { name: '阳光咖啡连锁', phone: '13800008888', password: 'Abc12345', company: '阳光咖啡连锁管理有限公司', role: '商户管理员' },
+      '13912345678': { name: '星辰科技', phone: '13912345678', password: 'Test1234', company: '星辰科技有限公司', role: '商户管理员' }
+    };
+
+    // ===== Demo: 新用户注册默认信息 =====
+    window.__demoUser = JSON.parse(localStorage.getItem('__demoUser') || 'null');
+
+    // ===== Toast =====
+    function showToast(msg, type) {
+      type = type || 'info';
+      var container = document.getElementById('loginToast');
+      var el = document.createElement('div');
+      el.className = 'login-toast-item ' + type;
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(function () {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.3s';
+        setTimeout(function () { el.remove(); }, 300);
+      }, 2500);
+    }
+
+    // ===== Tab 切换 =====
+    document.querySelectorAll('.login-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var tabName = this.getAttribute('data-tab');
+        if (tabName === 'qrcode') {
+          switchPanel('qrcode');
+        } else {
+          switchPanel('password');
+        }
+        currentTab = tabName;
+      });
+    });
+
+    function setActiveTab(tabName) {
+      document.querySelectorAll('.login-tab').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+      });
+    }
+
+    // ===== 面板切换 =====
+    function switchPanel(panel) {
+      currentPanel = panel;
+      document.querySelectorAll('.login-panel').forEach(function (p) { p.classList.remove('active'); });
+
+      var panelMap = {
+        'qrcode': 'panelQrcode',
+        'password': 'panelPassword',
+        'register': 'panelRegister',
+        'forgotPwd': 'panelForgotPwd'
+      };
+
+      var panelId = panelMap[panel];
+      if (panelId) {
+        document.getElementById(panelId).classList.add('active');
+      }
+
+      if (panel === 'password' || panel === 'register' || panel === 'forgotPwd') {
+        setActiveTab('password');
+      } else {
+        setActiveTab('qrcode');
+      }
+
+      // 清除表单错误
+      document.querySelectorAll('.form-error-msg').forEach(function (e) { e.classList.remove('show'); });
+      document.querySelectorAll('.form-input.error').forEach(function (e) { e.classList.remove('error'); });
+    }
+
+    function switchToRegister() {
+      clearLoginForm();
+      switchPanel('register');
+    }
+
+    function switchToLogin() {
+      clearRegisterForm();
+      clearForgotForm();
+      switchPanel('password');
+    }
+
+    function showForgotPassword() {
+      clearLoginForm();
+      switchPanel('forgotPwd');
+      // 预填手机号
+      var loginPhone = document.getElementById('loginPhone').value;
+      if (loginPhone) {
+        document.getElementById('forgotPhone').value = loginPhone;
+      }
+    }
+
+    // ===== 密码显示切换 =====
+    function togglePassword() {
+      var input = document.getElementById('loginPassword');
+      var btn = document.getElementById('pwdToggle');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    function toggleRegPassword() {
+      var input = document.getElementById('regPassword');
+      var btn = input.parentElement.querySelector('.pwd-toggle');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    function toggleForgotPassword() {
+      var input = document.getElementById('forgotNewPwd');
+      var btn = input.parentElement.querySelector('.pwd-toggle');
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    // ===== 校验 =====
+    function validatePhone(phone) {
+      return /^1[3-9]\d{9}$/.test(phone);
+    }
+
+    function validatePassword(pwd) {
+      if (pwd.length < 6 || pwd.length > 20) return false;
+      return /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
+    }
+
+    function showFieldError(inputId, errorId, msg) {
+      document.getElementById(inputId).classList.add('error');
+      var errEl = document.getElementById(errorId);
+      errEl.textContent = msg;
+      errEl.classList.add('show');
+    }
+
+    function clearFieldError(inputId, errorId) {
+      document.getElementById(inputId).classList.remove('error');
+      document.getElementById(errorId).classList.remove('show');
+    }
+
+    // ===== 登录 =====
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var phone = document.getElementById('loginPhone').value.trim();
+      var password = document.getElementById('loginPassword').value;
+      var valid = true;
+
+      clearFieldError('loginPhone', 'loginPhoneError');
+      clearFieldError('loginPassword', 'loginPwdError');
+
+      if (!validatePhone(phone)) {
+        showFieldError('loginPhone', 'loginPhoneError', '请输入正确的11位手机号');
+        valid = false;
+      }
+      if (!password) {
+        showFieldError('loginPassword', 'loginPwdError', '请输入密码');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      var btn = document.getElementById('btnLogin');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      // 模拟接口请求
+      setTimeout(function () {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+
+        // 检查本地注册用户
+        var localUser = JSON.parse(localStorage.getItem('__demoUser') || 'null');
+
+        var user = mockUsers[phone];
+        if (localUser && localUser.phone === phone) {
+          user = localUser;
+        }
+
+        if (!user) {
+          showFieldError('loginPhone', 'loginPhoneError', '该手机号未注册');
+          return;
+        }
+        if (user.password !== password) {
+          showFieldError('loginPassword', 'loginPwdError', '密码错误，请重试');
+          return;
+        }
+
+        // 登录成功
+        var session = {
+          token: 'demo_token_' + Date.now(),
+          user: {
+            id: 'U_' + phone,
+            name: user.name,
+            phone: user.phone,
+            company: user.company,
+            role: user.role
+          },
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('__demoSession', JSON.stringify(session));
+        showToast('登录成功，正在跳转...', 'success');
+        setTimeout(function () {
+          window.location.href = 'index.html';
+        }, 800);
+      }, 800);
+    });
+
+    // ===== 注册 =====
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var phone = document.getElementById('regPhone').value.trim();
+      var smsCode = document.getElementById('regSmsCode').value.trim();
+      var password = document.getElementById('regPassword').value;
+      var pwdConfirm = document.getElementById('regPasswordConfirm').value;
+      var valid = true;
+
+      clearFieldError('regPhone', 'regPhoneError');
+      clearFieldError('regSmsCode', 'regSmsError');
+      clearFieldError('regPassword', 'regPwdError');
+      clearFieldError('regPasswordConfirm', 'regPwdConfirmError');
+
+      if (!validatePhone(phone)) {
+        showFieldError('regPhone', 'regPhoneError', '请输入正确的11位手机号');
+        valid = false;
+      }
+      if (mockUsers[phone]) {
+        showFieldError('regPhone', 'regPhoneError', '该手机号已注册，请直接登录');
+        valid = false;
+      }
+      if (smsCode !== '123456') {
+        showFieldError('regSmsCode', 'regSmsError', '验证码错误（演示用：123456）');
+        valid = false;
+      }
+      if (!validatePassword(password)) {
+        showFieldError('regPassword', 'regPwdError', '密码为6-20位，需包含字母和数字');
+        valid = false;
+      }
+      if (password !== pwdConfirm) {
+        showFieldError('regPasswordConfirm', 'regPwdConfirmError', '两次输入的密码不一致');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      var btn = document.getElementById('btnRegister');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      setTimeout(function () {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+
+        // 模拟注册成功
+        var newUser = {
+          name: '商户' + phone.slice(-4),
+          phone: phone,
+          password: password,
+          company: '新注册商户',
+          role: '商户管理员'
+        };
+        localStorage.setItem('__demoUser', JSON.stringify(newUser));
+
+        var session = {
+          token: 'demo_token_' + Date.now(),
+          user: {
+            id: 'U_' + phone,
+            name: newUser.name,
+            phone: newUser.phone,
+            company: newUser.company,
+            role: newUser.role
+          },
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('__demoSession', JSON.stringify(session));
+        showToast('注册成功，正在跳转...', 'success');
+        setTimeout(function () {
+          window.location.href = 'index.html';
+        }, 800);
+      }, 800);
+    });
+
+    // ===== 忘记密码 =====
+    document.getElementById('forgotForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var phone = document.getElementById('forgotPhone').value.trim();
+      var smsCode = document.getElementById('forgotSmsCode').value.trim();
+      var newPwd = document.getElementById('forgotNewPwd').value;
+      var pwdConfirm = document.getElementById('forgotPwdConfirm').value;
+      var valid = true;
+
+      clearFieldError('forgotPhone', 'forgotPhoneError');
+      clearFieldError('forgotSmsCode', 'forgotSmsError');
+      clearFieldError('forgotNewPwd', 'forgotPwdError');
+      clearFieldError('forgotPwdConfirm', 'forgotPwdConfirmError');
+
+      if (!validatePhone(phone)) {
+        showFieldError('forgotPhone', 'forgotPhoneError', '请输入正确的11位手机号');
+        valid = false;
+      }
+      if (smsCode !== '123456') {
+        showFieldError('forgotSmsCode', 'forgotSmsError', '验证码错误（演示用：123456）');
+        valid = false;
+      }
+      if (!validatePassword(newPwd)) {
+        showFieldError('forgotNewPwd', 'forgotPwdError', '密码为6-20位，需包含字母和数字');
+        valid = false;
+      }
+      if (newPwd !== pwdConfirm) {
+        showFieldError('forgotPwdConfirm', 'forgotPwdConfirmError', '两次输入的密码不一致');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      var btn = document.getElementById('btnResetPwd');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      setTimeout(function () {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+
+        // 更新密码
+        var localUser = JSON.parse(localStorage.getItem('__demoUser') || 'null');
+        if (localUser && localUser.phone === phone) {
+          localUser.password = newPwd;
+          localStorage.setItem('__demoUser', JSON.stringify(localUser));
+        } else if (mockUsers[phone]) {
+          mockUsers[phone].password = newPwd;
+        } else {
+          showFieldError('forgotPhone', 'forgotPhoneError', '该手机号未注册');
+          return;
+        }
+
+        showToast('密码重置成功，请登录', 'success');
+        switchToLogin();
+        document.getElementById('loginPhone').value = phone;
+      }, 800);
+    });
+
+    // ===== 验证码 =====
+    function sendSmsCode() {
+      var phone = document.getElementById('regPhone').value.trim();
+      clearFieldError('regPhone', 'regPhoneError');
+
+      if (!validatePhone(phone)) {
+        showFieldError('regPhone', 'regPhoneError', '请输入正确的11位手机号');
+        return;
+      }
+      if (mockUsers[phone]) {
+        showFieldError('regPhone', 'regPhoneError', '该手机号已注册');
+        return;
+      }
+      if (smsCountdown > 0) return;
+
+      startSmsCountdown();
+      showToast('验证码已发送（演示用：123456）', 'info');
+    }
+
+    function startSmsCountdown() {
+      smsCountdown = 60;
+      var btn = document.getElementById('btnSms');
+      btn.disabled = true;
+      btn.textContent = smsCountdown + 's后重发';
+
+      smsTimer = setInterval(function () {
+        smsCountdown--;
+        if (smsCountdown <= 0) {
+          clearInterval(smsTimer);
+          btn.disabled = false;
+          btn.textContent = '获取验证码';
+        } else {
+          btn.textContent = smsCountdown + 's后重发';
+        }
+      }, 1000);
+    }
+
+    function sendForgotSmsCode() {
+      var phone = document.getElementById('forgotPhone').value.trim();
+      clearFieldError('forgotPhone', 'forgotPhoneError');
+
+      if (!validatePhone(phone)) {
+        showFieldError('forgotPhone', 'forgotPhoneError', '请输入正确的11位手机号');
+        return;
+      }
+      if (forgotSmsCountdown > 0) return;
+
+      startForgotSmsCountdown();
+      showToast('验证码已发送（演示用：123456）', 'info');
+    }
+
+    function startForgotSmsCountdown() {
+      forgotSmsCountdown = 60;
+      var btn = document.getElementById('btnForgotSms');
+      btn.disabled = true;
+      btn.textContent = forgotSmsCountdown + 's后重发';
+
+      forgotSmsTimer = setInterval(function () {
+        forgotSmsCountdown--;
+        if (forgotSmsCountdown <= 0) {
+          clearInterval(forgotSmsTimer);
+          btn.disabled = false;
+          btn.textContent = '获取验证码';
+        } else {
+          btn.textContent = forgotSmsCountdown + 's后重发';
+        }
+      }, 1000);
+    }
+
+    // ===== 二维码刷新 =====
+    function refreshQrcode() {
+      var box = document.getElementById('qrcodeBox');
+      box.classList.remove('expired');
+      showToast('二维码已刷新', 'info');
+    }
+
+    // 模拟二维码过期（演示用，5分钟后自动过期）
+    setTimeout(function () {
+      // 仅演示时不自动过期，保留手动刷新入口
+    }, 300000);
+
+    // ===== 清除表单 =====
+    function clearLoginForm() {
+      document.getElementById('loginPhone').value = '';
+      document.getElementById('loginPassword').value = '';
+      clearFieldError('loginPhone', 'loginPhoneError');
+      clearFieldError('loginPassword', 'loginPwdError');
+    }
+
+    function clearRegisterForm() {
+      document.getElementById('regPhone').value = '';
+      document.getElementById('regSmsCode').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regPasswordConfirm').value = '';
+      clearFieldError('regPhone', 'regPhoneError');
+      clearFieldError('regSmsCode', 'regSmsError');
+      clearFieldError('regPassword', 'regPwdError');
+      clearFieldError('regPasswordConfirm', 'regPwdConfirmError');
+    }
+
+    function clearForgotForm() {
+      document.getElementById('forgotPhone').value = '';
+      document.getElementById('forgotSmsCode').value = '';
+      document.getElementById('forgotNewPwd').value = '';
+      document.getElementById('forgotPwdConfirm').value = '';
+      clearFieldError('forgotPhone', 'forgotPhoneError');
+      clearFieldError('forgotSmsCode', 'forgotSmsError');
+      clearFieldError('forgotNewPwd', 'forgotPwdError');
+      clearFieldError('forgotPwdConfirm', 'forgotPwdConfirmError');
+    }
+
+    // ===== 检查已登录状态 =====
+    (function () {
+      var session = JSON.parse(localStorage.getItem('__demoSession') || 'null');
+      if (session && session.token) {
+        // 已有有效session，可选择自动跳转
+        // window.location.href = 'index.html';
+      }
+    })();
+  </script>
+
+</body>
+</html>

@@ -882,6 +882,12 @@
     /* 小程序推广路径列 — 复用 promo-col-path，path-cell 略窄 */
     .promo-col-path .btn-mp-list { flex-shrink: 0; }
 
+    /* 推广位列表 - 小程序推广路径：输入框风格只读展示 */
+    .promo-path-input-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .promo-path-display { flex: 1; min-width: 0; height: 30px; padding: 0 10px; font-size: 12px; line-height: 30px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #fafafa; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .promo-path-input-row .btn-copy-path { flex-shrink: 0; }
+    .promo-path-input-row .btn-mp-list { flex-shrink: 0; font-size: 12px; }
+
     /* 推广位表格 - 固定列宽 */
     .table-wrapper.card table { table-layout: fixed; width: 100%; }
     .text-muted { color: var(--color-text-tertiary); font-size: 12px; }
@@ -1189,6 +1195,42 @@
     }
     .act-list-actions .link-rule:hover {
       color: var(--color-primary-hover);
+    }
+
+    /* 预设活动开关 */
+    .act-preset-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      justify-content: center;
+    }
+    .act-preset-label {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .act-list-item.act-preset {
+      border-color: #FFD666;
+      background: #FFFBE6;
+    }
+    .act-list-item.act-preset .act-preset-label {
+      color: #D48806;
+      font-weight: 500;
+    }
+    .switch-sm {
+      width: 32px !important;
+      height: 18px !important;
+    }
+    .switch-sm .switch-slider::before {
+      width: 14px;
+      height: 14px;
+      left: 2px;
+      bottom: 2px;
+    }
+    .switch-sm input:checked + .switch-slider::before {
+      transform: translateX(14px);
     }
 
     /* 第三方活动列表项 */
@@ -3602,7 +3644,7 @@
       }
 
       // C06 账号设置：子菜单项映射到account页面的对应Tab
-      var accountTabMap = { 'account-info': 'info', 'account-pwd': 'pwd', 'account-log': 'log' };
+      var accountTabMap = { 'account-user': 'user', 'account-info': 'info', 'account-pwd': 'pwd', 'account-log': 'log' };
       if (accountTabMap[page] || page === 'account') {
         var tab = accountTabMap[page] || window.__pageTab;
         if (tab) {

@@ -1,13 +1,23 @@
 <div class="page-container" id="loginPage">
 
   <div class="page-header">
-    <h2>PC端登录页</h2>
+    <h2>G01 用户登录注册</h2>
+    <p style="color:#999;font-size:13px;margin-top:4px;">PC端登录页 + 注册 + 密码重置 — 功能规格与交互演示</p>
+  </div>
+
+  <!-- 快捷入口 -->
+  <div style="margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <a href="login.html" target="_blank" class="btn btn-primary" style="text-decoration:none;">🔑 打开独立登录页</a>
+    <span style="font-size:13px;color:#999;">（新窗口打开完整的登录/注册/密码重置功能）</span>
   </div>
 
   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:flex-start;">
 
-    <!-- 左侧：截图 -->
+    <!-- 左侧：登录页截图 -->
     <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+      <div style="padding:12px 16px;font-weight:600;font-size:14px;border-bottom:1px solid #f0f0f0;background:#fafafa;">
+        登录页布局示意（左品牌区 + 右表单区）
+      </div>
       <img src="images/login.jpeg" alt="PC端登录页" style="width:100%;display:block;">
     </div>
 
@@ -16,14 +26,14 @@
       <div style="font-weight:600;font-size:16px;margin-bottom:16px;">2.1 用户路径图 (User Flow)</div>
 
       <pre style="font-family: inherit;white-space:pre-wrap;margin:0;font-size:14px;line-height:1.8;">
-                     PC端登录页
+                     PC端登录页 (G01-a)
                          │
          ┌───────────────┴───────────────┐
          ▼                               ▼
    [扫码登录 Tab]                  [账号密码登录 Tab]
          │                               │
          │ 展示带参二维码                 │ 输入手机号+密码
-         │                               │
+         │ （需appid+密钥）               │
          ▼                               ├── 点击"忘记密码" → 密码重置流程
    用户微信扫码                           │
          │                               ▼
@@ -31,28 +41,128 @@
          │                               │
          └── 新用户(未关注/未绑定)        │ 校验失败 → 错误提示
                 │                        │
-                ▼                        │
-         关注公众号                       │
+                ▼                        ▼
+         关注公众号                  "还没有账号？立即注册"
                 │                        │
-                ▼                        │
-         收到自动回复(绑定链接)            │
+                ▼                        ▼
+         收到自动回复(绑定链接)      注册表单（同页切换）
                 │                        │
-                ▼                        │
-         H5绑定手机号页                   │
-                │                        │
-                ├── 快捷：微信授权获取手机号
-                └── 常规：手动输入+短信验证码
-                │                        │
-                ▼                        │
-         绑定成功 → 跳转H5修改密码页       │
-                │                        │
-                ├── 设置新密码并确认       │
-                └── 或点击"暂不修改"       │
-                │                        │
-                ▼                        │
+                ▼                        ├── 输入手机号
+         H5手机号绑定页 (G01-b)           ├── 获取短信验证码
+                │                        ├── 设置密码
+                ├── 快捷：微信授权获取手机号  ├── 确认密码
+                └── 常规：手动输入+短信验证码  │
+                │                        ▼
+                ▼                   注册成功 → 进入SaaS工作台
+         绑定成功 → H5密码设置页 (G01-c)
+                │
+                ├── 设置新密码并确认
+                └── 或点击"暂不修改"
+                │
+                ▼
          PC端监听到绑定成功 → 自动刷新进入工作台</pre>
     </div>
 
+  </div>
+
+  <!-- 页面清单 -->
+  <div style="margin-top:24px;background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+    <div style="padding:14px 20px;font-weight:600;font-size:15px;border-bottom:1px solid #f0f0f0;background:#fafafa;">
+      G01 覆盖页面
+    </div>
+    <table class="table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>页面ID</th>
+          <th>页面名称</th>
+          <th>设备</th>
+          <th>说明</th>
+          <th>状态</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>G01-a</code></td>
+          <td>PC端登录页</td>
+          <td>PC端</td>
+          <td>扫码登录 + 账号密码登录 + 注册 + 密码重置，四个面板同页切换</td>
+          <td><span class="tag tag-success">已实现</span></td>
+        </tr>
+        <tr>
+          <td><code>G01-b</code></td>
+          <td>H5手机号绑定页</td>
+          <td>移动端（微信内置浏览器）</td>
+          <td>微信授权获取手机号 / 手动输入+短信验证码</td>
+          <td><span class="tag tag-default">待实现（需appid）</span></td>
+        </tr>
+        <tr>
+          <td><code>G01-c</code></td>
+          <td>H5密码设置页</td>
+          <td>移动端（微信内置浏览器）</td>
+          <td>设置新密码 / 暂不设置直接进入</td>
+          <td><span class="tag tag-default">待实现（需appid）</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 接口清单 -->
+  <div style="margin-top:24px;background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+    <div style="padding:14px 20px;font-weight:600;font-size:15px;border-bottom:1px solid #f0f0f0;background:#fafafa;">
+      G01 接口清单
+    </div>
+    <table class="table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>接口ID</th>
+          <th>接口名称</th>
+          <th>请求方式</th>
+          <th>接口路径</th>
+          <th>适用层级</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>API-G01-001</code></td><td>账号密码登录</td><td>POST</td><td>/api/auth/login</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-002</code></td><td>获取用户信息</td><td>GET</td><td>/api/auth/userinfo</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-003</code></td><td>获取登录二维码</td><td>GET</td><td>/api/auth/qrcode</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-004</code></td><td>查询扫码状态</td><td>GET</td><td>/api/auth/qrcode/status</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-005</code></td><td>发送短信验证码</td><td>POST</td><td>/api/auth/smscode</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-006</code></td><td>注册/绑定手机号</td><td>POST</td><td>/api/auth/register</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-007</code></td><td>设置/重置密码</td><td>POST</td><td>/api/auth/password</td><td>🏪 客户端</td></tr>
+        <tr><td><code>API-G01-008</code></td><td>退出登录</td><td>POST</td><td>/api/auth/logout</td><td>🏪 客户端</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 业务规则 -->
+  <div style="margin-top:24px;background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+    <div style="padding:14px 20px;font-weight:600;font-size:15px;border-bottom:1px solid #f0f0f0;background:#fafafa;">
+      业务规则
+    </div>
+    <table class="table" style="margin:0;">
+      <thead>
+        <tr><th>规则编号</th><th>规则描述</th><th>适用层级</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>RULE-G01-001</code></td><td>Token有效期7天，过期自动跳转登录页</td><td>🏪 客户端</td></tr>
+        <tr><td><code>RULE-G01-002</code></td><td>二维码有效期5分钟，过期需刷新</td><td>🏪 客户端</td></tr>
+        <tr><td><code>RULE-G01-003</code></td><td>同一手机号60秒内不可重复发送验证码</td><td>🏪 客户端</td></tr>
+        <tr><td><code>RULE-G01-004</code></td><td>密码6-20位，必须包含字母和数字</td><td>🏪 客户端</td></tr>
+        <tr><td><code>RULE-G01-005</code></td><td>连续5次登录失败锁定账号30分钟</td><td>🏪 客户端</td></tr>
+        <tr><td><code>RULE-G01-006</code></td><td>已登录用户访问登录页自动跳转工作台</td><td>🏪 客户端</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 待确认事项 -->
+  <div style="margin-top:24px;background:#FFFBE6;border:1px solid #FFE58F;border-radius:8px;padding:20px 24px;">
+    <div style="font-weight:600;font-size:15px;margin-bottom:12px;">⚠️ 待确认事项</div>
+    <ol style="margin:0;padding-left:20px;font-size:14px;color:#666;line-height:2;">
+      <li><strong>公众号配置</strong>：扫码登录功能需要公众号appid和密钥，当前为占位演示。补充后替换代码中 <code>YOUR_APPID</code> 和 <code>YOUR_SECRET</code>。</li>
+      <li><strong>短信服务商</strong>：短信验证码服务商和API待确认，当前使用固定验证码 <code>123456</code> 演示。</li>
+      <li><strong>H5绑定页</strong>：G01-b（H5手机号绑定页）和G01-c（H5密码设置页）需微信公众号网页授权域名配置完成后实现。</li>
+      <li><strong>密码重置流程</strong>：当前仅支持短信验证码重置，是否需要邮箱等额外渠道待确认。</li>
+    </ol>
   </div>
 
 </div>

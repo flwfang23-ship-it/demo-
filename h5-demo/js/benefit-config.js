@@ -132,6 +132,7 @@
       renderInitialLayout();
     }
     rebindSimulatorDnD();
+    updateCardBadges();
   }
 
   function getCategoryCache(slotId, cateId) {
@@ -229,6 +230,7 @@
     return (
       '<div class="card' + extraClass + '" id="' + id + '"' + dragAttr + '>' +
         delBtn +
+	'<span class="card-missing-badge" style="display:none"></span>' +
         '<div class="card-img-box">' +
           '<span class="img-text">配置图片</span>' +
           '<img src="" alt="" style="display:none">' +
@@ -366,7 +368,7 @@
   }
 
   // ===== 保存逻辑 =====
-  function markDirty() { isDirty = true; updateSaveButton(); }
+  function markDirty() { isDirty = true; updateSaveButton(); updateCardBadges(); }
 
   function updateSaveButton() {
     var btn = document.getElementById('btnSaveConfig');
@@ -382,7 +384,275 @@
     }
   }
 
-  function saveAllConfig() {
+  // ===== 卡片角标：推广位缺失数量 =====
+  function countMissingPromosForPlatform(platformLabel) {
+    var allPromos = (window.MockData && window.MockData.getAllPromotions) ? window.MockData.getAllPromotions() : [];
+    var enabledPromos = allPromos.filter(function (p) { return p.benefitPageEnabled; });
+    var thirdActs = (window.MockData && window.MockData.thirdPartyActivities) ? window.MockData.thirdPartyActivities : [];
+    var groupMap = {};
+    (window.MockData && window.MockData.thirdPartyGroups || []).forEach(function (g) { groupMap[g.id] = g.name; });
+
+    // 找到平台对应的第三方活动分组
+    var targetGroupIds = [];
+    Object.keys(groupMap).forEach(function (gid) {
+      if (groupMap[gid] === platformLabel) targetGroupIds.push(gid);
+    });
+    // "其他"映射：美团/饿了么不直接对应京东/打车，归入"其他"
+    if (targetGroupIds.length === 0) {
+      Object.keys(groupMap).forEach(function (gid) {
+        if (groupMap[gid] === '其他') targetGroupIds.push(gid);
+      });
+    }
+
+    var count = 0;
+    enabledPromos.forEach(function (promo) {
+      var hasMissing = false;
+      thirdActs.forEach(function (act) {
+        if (targetGroupIds.indexOf(act.groupId) === -1) return;
+        if (act.useUnifiedPath && act.unifiedPath && act.unifiedPath.trim() !== '') return;
+        var paths = act.promoPaths || {};
+        if (!paths[promo.id] || !paths[promo.id].trim()) hasMissing = true;
+      });
+      if (hasMissing) count++;
+    });
+    return count;
+  }
+
+  function updateCardBadges() {
+    var skipPlatforms = ['美团', '饿了么'];
+    var cards = document.querySelectorAll('.sim-content .card:not(.inner-card)');
+    cards.forEach(function (card) {
+      var badge = card.querySelector('.card-missing-badge');
+      if (!badge) return;
+      var platformEl = card.querySelector('.platform-val');
+      var platform = platformEl ? platformEl.textContent.trim() : '';
+      if (!platform || platform === '--' || skipPlatforms.indexOf(platform) !== -1) {
+        badge.style.display = 'none';
+        card.style.borderColor = '';
+        return;
+      }
+      var count = countMissingPromosForPlatform(platform);
+      if (count > 0) {
+        badge.textContent = count + '个推广位待配置';
+        badge.className = 'card-missing-badge badge-warn';
+        badge.style.display = '';
+        card.style.borderColor = '#ff4d4f';
+      } else {
+        badge.textContent = '已全部配置';
+        badge.className = 'card-missing-badge badge-ok';
+        badge.style.display = '';
+        card.style.borderColor = '#52c41a';
+      }
+    });
+  }
+
+  // ===== 缺失第三方活动路径检查 =====
+  function getMissingActivitiesForSave() {
+    var allPromos = (window.MockData && window.MockData.getAllPromotions) ? window.MockData.getAllPromotions() : [];
+    var enabledPromos = allPromos.filter(function (p) { return p.benefitPageEnabled; });
+    var thirdActs = (window.MockData && window.MockData.thirdPartyActivities) ? window.MockData.thirdPartyActivities : [];
+
+    var result = [];
+    enabledPromos.forEach(function (promo) {
+      var missingActs = [];
+      thirdActs.forEach(function (act) {
+        if (act.useUnifiedPath && act.unifiedPath && act.unifiedPath.trim() !== '') return;
+        var paths = act.promoPaths || {};
+        var val = paths[promo.id] || '';
+        if (!val.trim()) {
+          missingActs.push({
+            id: act.id,
+            name: act.name,
+            appId: act.appId,
+            platform: act.platform || '',
+            groupId: act.groupId,
+            currentPath: '',
+            isPreset: !!act.isPreset
+          });
+        }
+      });
+      if (missingActs.length > 0) {
+        result.push({
+          promoId: promo.id,
+          promoName: promo.name,
+          groupName: promo.groupName || '',
+          missingActs: missingActs
+        });
+      }
+    });
+    return result;
+  }
+
+  function openMissingCheckModal(missingData) {
+    var overlay = document.getElementById('missingCheckOverlay');
+    if (!overlay) return;
+    renderMissingCheckBody(missingData);
+    overlay.style.display = 'flex';
+    setTimeout(function () { overlay.style.opacity = '1'; }, 10);
+  }
+
+  function closeMissingCheckModal() {
+    var overlay = document.getElementById('missingCheckOverlay');
+    if (!overlay) return;
+    overlay.style.opacity = '0';
+    setTimeout(function () { overlay.style.display = 'none'; }, 300);
+  }
+
+  function renderMissingCheckBody(missingData) {
+    var body = document.getElementById('missingCheckBody');
+    var hint = document.getElementById('missingCheckHint');
+    if (!body) return;
+
+    if (!missingData || missingData.length === 0) {
+      body.innerHTML = '<div class="mc-empty-hint"><span class="mc-empty-icon">✅</span>所有推广位活动路径已配置完毕</div>';
+      if (hint) hint.textContent = '';
+      return;
+    }
+
+    if (hint) hint.textContent = '共 ' + missingData.length + ' 个推广位存在缺失路径，请补全或关闭推广';
+
+    var groupMap = {};
+    (window.MockData && window.MockData.thirdPartyGroups || []).forEach(function (g) {
+      groupMap[g.id] = g.name;
+    });
+
+    var html = '';
+    missingData.forEach(function (promo) {
+      html += '<div class="mc-promo-group" data-promo-id="' + escAttr(promo.promoId) + '">';
+      html += '<div class="mc-promo-header">';
+      html += '<div><span class="mc-promo-name">推广位名称：' + escHtml(promo.promoName) + '</span><span class="mc-promo-id">' + escHtml(promo.promoId) + '</span><span class="mc-badge">' + promo.missingActs.length + '</span></div>';
+      html += '<div class="mc-promo-actions">';
+      html += '<button class="mc-btn-close-promo" data-close-promo="' + escAttr(promo.promoId) + '">关闭该推广位推广</button>';
+      html += '</div></div>';
+
+      html += '<table class="mc-path-table"><thead><tr><th style="width:28%">第三方活动</th><th style="width:20%">APPID</th><th style="width:12%">分组</th><th style="width:30%">小程序路径</th><th style="width:10%">状态</th></tr></thead><tbody>';
+
+      promo.missingActs.forEach(function (act) {
+        var isEmpty = !act.currentPath.trim();
+        var groupName = groupMap[act.groupId] || act.groupId || '—';
+        html += '<tr data-act-id="' + escAttr(act.id) + '">';
+        html += '<td><span class="mc-act-name">' + escHtml(act.name) + '</span></td>';
+        html += '<td><code class="mc-act-appid">' + escHtml(act.appId) + '</code></td>';
+        html += '<td><span class="mc-act-platform">' + escHtml(groupName) + '</span></td>';
+        html += '<td><input type="text" class="mc-path-input' + (isEmpty ? ' is-empty' : ' is-filled') + '" value="' + escAttr(act.currentPath) + '" placeholder="输入小程序路径" data-act-id="' + escAttr(act.id) + '" data-promo-id="' + escAttr(promo.promoId) + '"></td>';
+        html += '<td><span class="mc-status-tag is-missing">缺失</span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+    });
+
+    body.innerHTML = html;
+
+    body.querySelectorAll('.mc-path-input').forEach(function (input) {
+      input.addEventListener('input', function () {
+        var row = input.closest('tr');
+        var statusEl = row.querySelector('.mc-status-tag');
+        var isEmpty = !input.value.trim();
+        input.classList.toggle('is-empty', isEmpty);
+        input.classList.toggle('is-filled', !isEmpty);
+        if (statusEl) {
+          statusEl.textContent = isEmpty ? '缺失' : '已配置';
+          statusEl.className = 'mc-status-tag ' + (isEmpty ? 'is-missing' : 'is-ok');
+        }
+        updateMissingCheckHint();
+      });
+    });
+
+    body.querySelectorAll('.mc-btn-close-promo').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var promoId = btn.getAttribute('data-close-promo');
+        handleClosePromoInCheck(promoId, btn);
+      });
+    });
+  }
+
+  function updateMissingCheckHint() {
+    var body = document.getElementById('missingCheckBody');
+    var hint = document.getElementById('missingCheckHint');
+    if (!body || !hint) return;
+    var inputs = body.querySelectorAll('.mc-path-input.is-empty:not([disabled])');
+    var groups = body.querySelectorAll('.mc-promo-group');
+    var activeGroups = 0;
+    groups.forEach(function (g) {
+      var btn = g.querySelector('.mc-btn-close-promo');
+      if (btn && !btn.classList.contains('disabled-promo')) activeGroups++;
+    });
+    if (activeGroups === 0) {
+      hint.textContent = '所有推广位已关闭推广，可直接保存';
+      hint.style.color = '#52c41a';
+    } else if (inputs.length === 0) {
+      hint.textContent = '所有缺失路径已补全，可以保存';
+      hint.style.color = '#52c41a';
+    } else {
+      hint.textContent = '共 ' + inputs.length + ' 项缺失路径待配置';
+      hint.style.color = '#ff4d4f';
+    }
+  }
+
+  function handleClosePromoInCheck(promoId, btn) {
+    if (btn.classList.contains('disabled-promo')) return;
+
+    var allPromos = window.MockData.getAllPromotions();
+    var promo = null;
+    for (var i = 0; i < allPromos.length; i++) {
+      if (allPromos[i].id === promoId) { promo = allPromos[i]; break; }
+    }
+    if (promo) {
+      promo.benefitPageEnabled = false;
+      var groups = window.MockData.promotionGroups;
+      groups.forEach(function (g) {
+        (g.promotions || []).forEach(function (p) {
+          if (p.id === promoId) p.benefitPageEnabled = false;
+        });
+      });
+    }
+
+    btn.textContent = '已关闭推广';
+    btn.classList.add('disabled-promo');
+    var group = btn.closest('.mc-promo-group');
+    if (group) {
+      group.style.opacity = '0.5';
+      var inputs = group.querySelectorAll('.mc-path-input');
+      inputs.forEach(function (inp) { inp.disabled = true; });
+    }
+    updateMissingCheckHint();
+  }
+
+  function handleCancelMissingCheck() {
+    closeMissingCheckModal();
+  }
+
+  function handleSkipMissingCheck() {
+    closeMissingCheckModal();
+    doSaveConfig();
+  }
+
+  function handleSaveMissingCheck() {
+    var body = document.getElementById('missingCheckBody');
+    if (!body) return;
+
+    var thirdActs = (window.MockData && window.MockData.thirdPartyActivities) ? window.MockData.thirdPartyActivities : [];
+    var inputs = body.querySelectorAll('.mc-path-input:not([disabled])');
+    inputs.forEach(function (input) {
+      var actId = input.getAttribute('data-act-id');
+      var promoId = input.getAttribute('data-promo-id');
+      var val = input.value.trim();
+      if (!val) return;
+      for (var i = 0; i < thirdActs.length; i++) {
+        if (thirdActs[i].id === actId) {
+          if (!thirdActs[i].promoPaths) thirdActs[i].promoPaths = {};
+          thirdActs[i].promoPaths[promoId] = val;
+          break;
+        }
+      }
+    });
+
+    closeMissingCheckModal();
+    doSaveConfig();
+  }
+
+  function doSaveConfig() {
     if (!isDirty) return;
     saveCurrentCanvas();
     try {
@@ -394,6 +664,201 @@
     isDirty = false;
     updateSaveButton();
     showBenefitToast('配置保存成功！', 'success');
+    updateCardBadges();
+  }
+
+  function saveAllConfig() {
+    if (!isDirty) return;
+
+    var missingData = getMissingActivitiesForSave();
+    if (missingData.length > 0) {
+      openMissingCheckModal(missingData);
+    } else {
+      doSaveConfig();
+    }
+  }
+
+  // ===== 平台推广位路径配置抽屉 =====
+  var ppdPlatform = '';
+
+  function getThirdPartyGroupForPlatform(platformLabel) {
+    var groups = (window.MockData && window.MockData.thirdPartyGroups) ? window.MockData.thirdPartyGroups : [];
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i].name === platformLabel) return groups[i];
+    }
+    return null;
+  }
+
+  function openPlatformPathDrawer(platform) {
+    ppdPlatform = platform;
+    renderPlatformPathDrawer();
+    openModalAnimated(document.getElementById('platformPathDrawerOverlay'));
+  }
+
+  function closePlatformPathDrawer() {
+    closeModalAnimated(document.getElementById('platformPathDrawerOverlay'));
+  }
+
+  function renderPlatformPathDrawer() {
+    var body = document.getElementById('ppdBody');
+    if (!body) return;
+
+    var group = getThirdPartyGroupForPlatform(ppdPlatform);
+    var thirdActs = (window.MockData && window.MockData.thirdPartyActivities) ? window.MockData.thirdPartyActivities : [];
+    var groupActs = thirdActs.filter(function (act) {
+      return group && act.groupId === group.id;
+    });
+
+    var allPromos = (window.MockData && window.MockData.getAllPromotions) ? window.MockData.getAllPromotions() : [];
+
+    if (groupActs.length === 0 || allPromos.length === 0) {
+      body.innerHTML = '<div style="text-align:center;color:#999;padding:60px 20px;font-size:14px;">暂无数据</div>';
+      return;
+    }
+
+    var html = '';
+    groupActs.forEach(function (act) {
+      var useUnified = !!(act.useUnifiedPath);
+      var unifiedPath = act.unifiedPath || '';
+
+      html += '<div class="tpa-drawer-card" style="margin-bottom:20px;">';
+      // 活动信息
+      html += '<div class="drawer-activity-info" style="margin-bottom:12px;">';
+      html += '<div class="drawer-activity-tags">';
+      html += '<span class="tpa-platform-tag">' + escHtml(ppdPlatform) + '</span>';
+      html += '<span class="drawer-activity-name">' + escHtml(act.name) + '</span>';
+      html += '</div></div>';
+      html += '<div class="tpa-drawer-appid" style="margin-bottom:12px;">';
+      html += '<span>AppID：</span><code>' + escHtml(act.appId) + '</code>';
+      html += '</div>';
+
+      // 路径配置卡片
+      html += '<div style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;">';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;">';
+      html += '<span style="font-weight:500;font-size:13px;">推广路径配置</span>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<span style="font-size:11px;color:#999;">统一路径</span>';
+      html += '<label class="switch"><input type="checkbox" class="ppd-unified-toggle" data-act-id="' + escAttr(act.id) + '"' + (useUnified ? ' checked' : '') + '><span class="switch-slider"></span></label>';
+      html += '</div></div>';
+
+      html += '<div style="padding:12px 14px;">';
+      html += '<div class="tpa-drawer-hint" style="font-size:11px;color:#999;margin-bottom:10px;">开启后所有推广位使用同一个小程序路径，无需逐个配置</div>';
+
+      // 统一路径输入
+      html += '<div class="ppd-unified-box" data-act-id="' + escAttr(act.id) + '" style="' + (useUnified ? '' : 'display:none') + ';margin-bottom:10px;">';
+      html += '<div style="display:flex;gap:8px;">';
+      html += '<input type="text" class="input ppd-unified-input" value="' + escAttr(unifiedPath) + '" placeholder="请输入统一的小程序路径" style="flex:1;" data-act-id="' + escAttr(act.id) + '">';
+      html += '<button class="btn btn-primary btn-sm ppd-save-unified" data-act-id="' + escAttr(act.id) + '">保存路径</button>';
+      html += '</div></div>';
+
+      // 推广位表格
+      html += '<div class="ppd-table-box" data-act-id="' + escAttr(act.id) + '" style="' + (useUnified ? 'display:none' : '') + ';">';
+      html += '<div class="path-drawer-table-wrap">';
+      html += '<table class="path-drawer-table"><thead><tr>';
+      html += '<th style="width:25%;">推广位名称</th><th style="width:60%;">小程序路径</th><th style="width:15%;">操作</th>';
+      html += '</tr></thead><tbody>';
+
+      allPromos.forEach(function (promo) {
+        var paths = act.promoPaths || {};
+        var pathVal = paths[promo.id] || '';
+        var isEmpty = !pathVal.trim();
+        html += '<tr>';
+        html += '<td style="font-size:13px;">' + escHtml(promo.name) + '</td>';
+        html += '<td><input type="text" class="path-drawer-input' + (isEmpty ? ' is-empty' : '') + '" value="' + escAttr(pathVal) + '" placeholder="请输入小程序路径" data-act-id="' + escAttr(act.id) + '" data-promo-id="' + escAttr(promo.id) + '"></td>';
+        html += '<td><button class="btn btn-primary btn-sm ppd-save-row" data-act-id="' + escAttr(act.id) + '" data-promo-id="' + escAttr(promo.id) + '">保存</button></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+      html += '<div style="margin-top:10px;text-align:right;">';
+      html += '<button class="btn btn-primary ppd-save-all" data-act-id="' + escAttr(act.id) + '">一键保存全部</button>';
+      html += '</div></div>'; // ppd-table-box
+
+      html += '</div></div>'; // card body + card
+      html += '</div>'; // tpa-drawer-card
+    });
+
+    body.innerHTML = html;
+
+    // 统一路径开关
+    body.querySelectorAll('.ppd-unified-toggle').forEach(function (toggle) {
+      toggle.addEventListener('change', function () {
+        var actId = this.getAttribute('data-act-id');
+        var act = findThirdPartyAct(actId);
+        if (!act) return;
+        var willUnified = this.checked;
+        if (!willUnified && act.useUnifiedPath) {
+          // 关闭统一路径时，把统一路径填到各行
+          var unified = body.querySelector('.ppd-unified-input[data-act-id="' + actId + '"]');
+          var unifiedVal = unified ? unified.value.trim() : act.unifiedPath;
+          if (unifiedVal) {
+            body.querySelectorAll('.path-drawer-input[data-act-id="' + actId + '"]').forEach(function (inp) {
+              inp.value = unifiedVal;
+              inp.classList.remove('is-empty');
+            });
+          }
+        }
+        act.useUnifiedPath = willUnified;
+        body.querySelector('.ppd-unified-box[data-act-id="' + actId + '"]').style.display = willUnified ? '' : 'none';
+        body.querySelector('.ppd-table-box[data-act-id="' + actId + '"]').style.display = willUnified ? 'none' : '';
+      });
+    });
+
+    // 统一路径保存
+    body.querySelectorAll('.ppd-save-unified').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var actId = this.getAttribute('data-act-id');
+        var act = findThirdPartyAct(actId);
+        if (!act) return;
+        var input = body.querySelector('.ppd-unified-input[data-act-id="' + actId + '"]');
+        act.unifiedPath = input ? input.value.trim() : '';
+        window.showToast('统一路径保存成功', 'success');
+      });
+    });
+
+    // 行级保存
+    body.querySelectorAll('.ppd-save-row').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var actId = this.getAttribute('data-act-id');
+        var promoId = this.getAttribute('data-promo-id');
+        var act = findThirdPartyAct(actId);
+        if (!act) return;
+        var input = body.querySelector('.path-drawer-input[data-act-id="' + actId + '"][data-promo-id="' + promoId + '"]');
+        if (!input) return;
+        if (!act.promoPaths) act.promoPaths = {};
+        act.promoPaths[promoId] = input.value.trim();
+        input.classList.toggle('is-empty', !input.value.trim());
+        window.showToast('保存成功', 'success');
+        updateCardBadges();
+      });
+    });
+
+    // 一键保存全部
+    body.querySelectorAll('.ppd-save-all').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var actId = this.getAttribute('data-act-id');
+        var act = findThirdPartyAct(actId);
+        if (!act) return;
+        if (!act.promoPaths) act.promoPaths = {};
+        var inputs = body.querySelectorAll('.path-drawer-input[data-act-id="' + actId + '"]');
+        var savedCount = 0;
+        inputs.forEach(function (inp) {
+          act.promoPaths[inp.getAttribute('data-promo-id')] = inp.value.trim();
+          inp.classList.remove('is-empty');
+          savedCount++;
+        });
+        window.showToast('已保存 ' + savedCount + ' 条推广位路径', 'success');
+        updateCardBadges();
+      });
+    });
+  }
+
+  function findThirdPartyAct(actId) {
+    var thirdActs = (window.MockData && window.MockData.thirdPartyActivities) ? window.MockData.thirdPartyActivities : [];
+    for (var i = 0; i < thirdActs.length; i++) {
+      if (thirdActs[i].id === actId) return thirdActs[i];
+    }
+    return null;
   }
 
   // ===== Toast =====
@@ -534,6 +999,17 @@
         if (del) { e.stopPropagation(); var did = del.getAttribute('data-delete'); if (did) deleteElement(did); return; }
         var tb = e.target.closest('[data-edit-module]');
         if (tb) { openModuleTitleModal(tb.getAttribute('data-edit-module')); return; }
+        // 点击卡片 → 打开平台路径配置抽屉
+        var card = e.target.closest('.card:not(.inner-card)');
+        if (card) {
+          e.stopPropagation();
+          var platformEl = card.querySelector('.platform-val');
+          var platform = platformEl ? platformEl.textContent.trim() : '';
+          if (platform && platform !== '--' && ['美团', '饿了么'].indexOf(platform) === -1) {
+            openPlatformPathDrawer(platform);
+          }
+          return;
+        }
       });
     }
 
@@ -561,6 +1037,22 @@
     bindModal('moduleTitleModalOverlay', 'btnCloseModuleTitle', 'btnCancelModuleTitle', 'btnSaveModuleTitle', saveModuleTitle);
     bindModal('cateModalOverlay', 'btnCloseCate', 'btnCancelCate', 'btnSaveCate', saveCateConfig);
     bindModal('manageModalOverlay', 'btnCloseManage', null, 'btnFinishManage', function () { closeBenefitModal('manageModalOverlay'); });
+
+    // ---- 缺失活动检查弹窗 ----
+    bindModal('missingCheckOverlay', 'btnCloseMissingCheck', null, null, null);
+
+    var btnCancelMissing = document.getElementById('btnCancelMissing');
+    if (btnCancelMissing) btnCancelMissing.addEventListener('click', handleCancelMissingCheck);
+
+    var btnSkipMissing = document.getElementById('btnSkipMissing');
+    if (btnSkipMissing) btnSkipMissing.addEventListener('click', handleSkipMissingCheck);
+
+    var btnSaveMissing = document.getElementById('btnSaveMissing');
+    if (btnSaveMissing) btnSaveMissing.addEventListener('click', handleSaveMissingCheck);
+
+    // ---- 平台路径配置抽屉 ----
+    var btnPpdClose = document.getElementById('btnPpdClose');
+    if (btnPpdClose) btnPpdClose.addEventListener('click', closePlatformPathDrawer);
 
     // ---- 收入流转图放大灯箱 ----
     var chartThumbBox = document.getElementById('chartThumbBox');

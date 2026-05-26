@@ -276,11 +276,11 @@
       regular = regular.filter(function (a) { return a.supplier === 'eleme'; });
       tpa = [];
     } else if (currentTab === 'jd') {
-      regular = regular.filter(function (a) { return a.supplier === 'jd'; });
-      tpa = [];
+      tpa = regular.filter(function (a) { return a.supplier === 'jd'; });
+      regular = [];
     } else if (currentTab === 'taxi') {
-      regular = regular.filter(function (a) { return a.supplier === 'taxi'; });
-      tpa = [];
+      tpa = regular.filter(function (a) { return a.supplier === 'taxi'; });
+      regular = [];
     } else if (currentTab === 'other') {
       regular = [];
     }
@@ -362,9 +362,11 @@
     var endHtml = a.endDate ? '<div>截止：' + a.endDate + '</div>' : '';
     var commHtml = a.commission ? a.commission : '--';
     var supplierCls = a.supplier;
+    var isPreset = !!a.isPreset;
+    var presetChecked = isPreset ? ' checked' : '';
 
     return '' +
-      '<div class="act-list-item" data-act-id="' + a.id + '">' +
+      '<div class="act-list-item' + (isPreset ? ' act-preset' : '') + '" data-act-id="' + a.id + '">' +
         '<div class="act-list-banner">' + bannerHtml + '</div>' +
         '<div class="act-list-info">' +
           '<div class="act-title-row">' +
@@ -384,6 +386,13 @@
           '<div class="comm-value">' + commHtml + '</div>' +
         '</div>' +
         '<div class="act-list-actions">' +
+          '<div class="act-preset-toggle">' +
+            '<label class="switch switch-sm">' +
+              '<input type="checkbox" class="act-preset-checkbox" data-act-id="' + a.id + '"' + presetChecked + '>' +
+              '<span class="switch-slider"></span>' +
+            '</label>' +
+            '<span class="act-preset-label">' + (isPreset ? '已预设' : '预设活动') + '</span>' +
+          '</div>' +
           '<button class="btn-promote-sm" data-activity=\'' + JSON.stringify({ id: a.id, name: a.name, supplier: a.supplierLabel, supplierKey: a.supplier, subtitle: a.subtitle || '', commission: a.commission || '详询' }).replace(/'/g, '&#39;') + '\'>立即推广</button>' +
           '<a href="javascript:;" class="link-rule" data-venue="' + (a.venueId || '') + '">会场推广规则 &gt;</a>' +
         '</div>' +
@@ -391,14 +400,19 @@
   }
 
   function renderTpaItem(a) {
-    var delHtml = a.isPreset ? '' : '<button class="tpa-delete" data-tpa-id="' + a.id + '">删除</button>';
-    var inUseHtml = hasBenefitConfig(a) ? '<span class="tpa-inuse-tag">使用中</span>' : '';
+    var platformLabel = a.platformLabel || a.supplierLabel || a.platform || '';
+    var hasAppId = a.appId && a.appId.trim() !== '';
+    var subtitleHtml = hasAppId
+      ? '<div class="tpa-appid">AppID：' + a.appId + '</div>'
+      : (a.subtitle ? '<div class="tpa-appid">' + a.subtitle + '</div>' : '');
+    var delHtml = (a.isPreset || !hasAppId) ? '' : '<button class="tpa-delete" data-tpa-id="' + a.id + '">删除</button>';
+    var inUseHtml = (hasAppId && hasBenefitConfig(a)) ? '<span class="tpa-inuse-tag">使用中</span>' : '';
     return '' +
       '<div class="tpa-list-item" data-tpa-id="' + a.id + '">' +
-        '<span class="tpa-platform-tag">' + a.platform + '</span>' +
+        '<span class="tpa-platform-tag">' + platformLabel + '</span>' +
         '<div class="tpa-info">' +
           '<div class="tpa-name">' + a.name + inUseHtml + '</div>' +
-          '<div class="tpa-appid">AppID：' + a.appId + '</div>' +
+          subtitleHtml +
         '</div>' +
         '<span class="tpa-arrow">配置推广位路径 &gt;</span>' +
         delHtml +
@@ -434,6 +448,16 @@
       });
     });
 
+    // 预设活动 - 开关切换
+    document.querySelectorAll('.act-preset-checkbox').forEach(function (cb) {
+      cb.addEventListener('change', function (e) {
+        e.stopPropagation();
+        var actId = this.getAttribute('data-act-id');
+        var checked = this.checked;
+        togglePresetActivity(actId, checked);
+      });
+    });
+
     // 第三方活动 - 删除按钮
     document.querySelectorAll('.tpa-delete').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -442,6 +466,18 @@
         confirmDeleteTpa(tpaId);
       });
     });
+  }
+
+  // 预设活动开关
+  function togglePresetActivity(actId, isPreset) {
+    var activities = getRegularActivities();
+    var act = activities.find(function (a) { return a.id === actId; });
+    if (!act) return;
+    act.isPreset = isPreset;
+    var label = isPreset ? '已设为预设活动' : '已取消预设';
+    window.showToast('「' + act.name + '」' + label, 'success');
+    // 刷新当前项的预设标签显示
+    renderList();
   }
 
   // 检查活动是否在权益页有配置（统一路径有值 或 promoPaths 中有任意非空值）

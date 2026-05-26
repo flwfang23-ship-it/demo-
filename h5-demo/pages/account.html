@@ -18,23 +18,113 @@
 
 <div class="page-container" id="accountRoot">
   <div class="page-header">
-    <h2>👤 账号设置</h2>
+    <h2>⚙️ 账户设置</h2>
   </div>
 
   <!-- 内部Tab切换 -->
   <div class="tabs" id="accountTabs">
-    <div class="tab-item active" data-tab="info">企业信息</div>
+    <div class="tab-item active" data-tab="user">账号信息</div>
+    <div class="tab-item" data-tab="info">企业信息</div>
     <div class="tab-item" data-tab="pwd">修改密码</div>
     <div class="tab-item" data-tab="log">操作日志</div>
   </div>
 
+  <!-- Tab 0: 账号信息 -->
+  <div class="account-tab-content" id="tabUser">
+    <div class="card" style="padding:var(--spacing-xl);">
+      <div class="account-user-card">
+        <div class="user-avatar-row">
+          <div class="user-avatar-circle" id="userAvatar">阳</div>
+          <div class="user-name-block">
+            <span class="user-display-name" id="userDisplayName">--</span>
+            <span class="user-role-tag" id="userRoleTag">--</span>
+          </div>
+        </div>
+        <div class="user-detail-grid">
+          <div class="user-detail-item">
+            <span class="detail-label">注册手机号</span>
+            <span class="detail-value" id="userPhone">--</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">账号角色</span>
+            <span class="detail-value" id="userRole">--</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">注册时间</span>
+            <span class="detail-value" id="userCreatedAt">--</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="detail-label">最后登录时间</span>
+            <span class="detail-value" id="userLastLogin">--</span>
+          </div>
+          <div class="user-detail-item" style="grid-column: 1 / -1;">
+            <span class="detail-label">账号状态</span>
+            <span id="userStatus"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Tab 1: 企业信息 -->
-  <div class="account-tab-content" id="tabInfo">
+  <div class="account-tab-content" id="tabInfo" style="display:none;">
+    <!-- 营业执照OCR上传区 -->
+    <div class="card" style="padding:var(--spacing-xl);margin-bottom:var(--spacing-base);">
+      <div class="ocr-section">
+        <div class="ocr-section-title">
+          📄 营业执照上传识别
+          <span class="ocr-demo-badge">演示模式</span>
+        </div>
+
+        <!-- 上传区 -->
+        <div class="ocr-upload-zone" id="ocrUploadZone">
+          <div class="ocr-upload-icon">📤</div>
+          <div class="ocr-upload-text">点击或拖拽上传营业执照</div>
+          <div class="ocr-upload-hint">支持 JPG / PNG，大小不超过 5MB</div>
+          <input type="file" class="ocr-upload-input" id="ocrFileInput" accept="image/jpeg,image/png">
+        </div>
+
+        <!-- 预览 + 识别区 -->
+        <div class="ocr-preview-area" id="ocrPreviewArea">
+          <div class="ocr-preview-header">
+            <span class="ocr-preview-title">📷 营业执照预览</span>
+            <button class="btn btn-link" id="ocrReupload">重新上传</button>
+          </div>
+          <img class="ocr-preview-img" id="ocrPreviewImg" src="" alt="营业执照预览">
+          <!-- 识别中 -->
+          <div class="ocr-scanning" id="ocrScanning">
+            <span>识别中</span>
+            <span class="scanning-dot"></span>
+            <span class="scanning-dot"></span>
+            <span class="scanning-dot"></span>
+            <span class="scanning-dot"></span>
+          </div>
+          <!-- 识别结果 -->
+          <div class="ocr-result-card" id="ocrResultCard">
+            <div class="ocr-result-title">✅ 识别完成</div>
+            <div class="ocr-result-grid" id="ocrResultGrid"></div>
+            <div class="ocr-result-actions">
+              <button class="btn btn-primary" id="ocrFillBtn">一键填充到企业信息</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 企业信息表单 -->
     <div class="card" style="padding:var(--spacing-xl);">
       <div class="account-form" id="accountInfoForm">
         <div class="form-group">
           <div class="form-label">公司名称</div>
           <input type="text" class="input input-lg" id="infoCompany" maxlength="50" placeholder="请输入公司名称">
+        </div>
+        <div class="form-group">
+          <div class="form-label">统一社会信用代码</div>
+          <input type="text" class="input input-lg" id="infoCreditCode" maxlength="18" placeholder="请输入统一社会信用代码">
+        </div>
+        <div class="form-group">
+          <div class="form-label">法定代表人</div>
+          <input type="text" class="input input-lg" id="infoLegalPerson" maxlength="20" placeholder="请输入法定代表人">
         </div>
         <div class="form-group">
           <div class="form-label">联系人</div>
@@ -62,22 +152,55 @@
 
   <!-- Tab 2: 修改密码 -->
   <div class="account-tab-content" id="tabPwd" style="display:none;">
-    <div class="card" style="padding:var(--spacing-xl);">
-      <div class="password-form" id="pwdForm">
-        <div class="form-group">
-          <div class="form-label">旧密码</div>
-          <input type="password" class="input input-lg" id="pwdOld" placeholder="请输入旧密码">
+    <div class="card" style="padding:var(--spacing-xl);max-width:480px;">
+      <!-- 步骤条 -->
+      <div class="pwd-steps" id="pwdSteps">
+        <div class="pwd-step current" data-pwd-step="1">
+          <span class="step-dot">1</span>
+          <span>短信验证</span>
         </div>
-        <div class="form-group">
-          <div class="form-label">新密码</div>
-          <input type="password" class="input input-lg" id="pwdNew" placeholder="请输入新密码（6-20位）">
+        <div class="pwd-step-line" data-pwd-line="1"></div>
+        <div class="pwd-step" data-pwd-step="2">
+          <span class="step-dot">2</span>
+          <span>设置新密码</span>
         </div>
-        <div class="form-group">
-          <div class="form-label">确认新密码</div>
-          <input type="password" class="input input-lg" id="pwdConfirm" placeholder="请再次输入新密码">
+      </div>
+
+      <!-- 步骤1: 短信验证 -->
+      <div class="pwd-step-panel active" id="pwdPanel1">
+        <div class="password-form">
+          <div class="form-group">
+            <div class="form-label">验证码将发送至注册手机号</div>
+            <div style="font-size:14px;color:var(--color-primary);font-weight:500;margin-bottom:12px;" id="pwdPhoneDisplay">--</div>
+            <div style="display:flex;gap:10px;max-width:300px;">
+              <input type="text" class="input input-lg" id="pwdSmsCode" placeholder="请输入6位验证码" maxlength="6" style="flex:1;">
+              <button class="btn" id="btnPwdSms" style="width:120px;flex-shrink:0;white-space:nowrap;">获取验证码</button>
+            </div>
+            <div class="form-error-msg" id="pwdSmsError" style="display:none;font-size:12px;color:var(--color-danger);margin-top:4px;"></div>
+          </div>
         </div>
         <div class="account-info-actions">
-          <button class="btn btn-primary" id="btnChangePwd">修改密码</button>
+          <button class="btn btn-primary" id="btnPwdVerify">验证并继续</button>
+        </div>
+      </div>
+
+      <!-- 步骤2: 设置新密码 -->
+      <div class="pwd-step-panel" id="pwdPanel2">
+        <div class="password-form">
+          <div class="form-group">
+            <div class="form-label">新密码</div>
+            <input type="password" class="input input-lg" id="pwdNew" placeholder="6-20位，需包含字母和数字" maxlength="20">
+            <div class="form-error-msg" id="pwdNewError" style="display:none;font-size:12px;color:var(--color-danger);margin-top:4px;"></div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">确认新密码</div>
+            <input type="password" class="input input-lg" id="pwdConfirm" placeholder="请再次输入新密码" maxlength="20">
+            <div class="form-error-msg" id="pwdConfirmError" style="display:none;font-size:12px;color:var(--color-danger);margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="account-info-actions">
+          <button class="btn btn-primary" id="btnChangePwd">确认修改</button>
+          <button class="btn" id="btnPwdBack">上一步</button>
         </div>
       </div>
     </div>
@@ -125,9 +248,29 @@
   var logDateStart = '';
   var logDateEnd = '';
 
+  // ===== 账号信息 =====
+  function loadUserInfo() {
+    document.getElementById('userAvatar').textContent = merchant.avatar || '阳';
+    document.getElementById('userDisplayName').textContent = merchant.name || '--';
+    document.getElementById('userRoleTag').textContent = merchant.role || '--';
+    document.getElementById('userPhone').textContent = merchant.phone || '--';
+    document.getElementById('userRole').textContent = merchant.role || '--';
+    document.getElementById('userCreatedAt').textContent = merchant.createdAt || '--';
+    document.getElementById('userLastLogin').textContent = merchant.lastLoginTime || '--';
+
+    var statusMap = {
+      'normal': '<span class="status-tag normal">正常</span>',
+      'disabled': '<span class="status-tag disabled">已禁用</span>',
+      'pending': '<span class="status-tag pending">待审核</span>'
+    };
+    document.getElementById('userStatus').innerHTML = statusMap[merchant.accountStatus] || statusMap['normal'];
+  }
+
   // ===== 企业信息 =====
   function loadInfo() {
     document.getElementById('infoCompany').value = merchant.company || '';
+    document.getElementById('infoCreditCode').value = merchant.creditCode || '';
+    document.getElementById('infoLegalPerson').value = merchant.legalPerson || '';
     document.getElementById('infoContact').value = merchant.contact || '';
     document.getElementById('infoPhone').value = merchant.contactPhone || '';
     document.getElementById('infoRegPhone').textContent = merchant.phone || '--';
@@ -136,10 +279,11 @@
 
   document.getElementById('btnSaveInfo').addEventListener('click', function () {
     merchant.company = document.getElementById('infoCompany').value.trim();
+    merchant.creditCode = document.getElementById('infoCreditCode').value.trim();
+    merchant.legalPerson = document.getElementById('infoLegalPerson').value.trim();
     merchant.contact = document.getElementById('infoContact').value.trim();
     merchant.contactPhone = document.getElementById('infoPhone').value.trim();
     window.showToast('企业信息保存成功', 'success');
-    // 同步更新侧边栏
     var nameEl = document.querySelector('.sidebar-user-name');
     if (nameEl && merchant.company) nameEl.textContent = merchant.company;
   });
@@ -149,23 +293,195 @@
     window.showToast('已重置', 'info');
   });
 
-  // ===== 修改密码 =====
+  // ===== 营业执照OCR =====
+  var ocrData = window.MockData.ocrMockResult;
+  var ocrFileInput = document.getElementById('ocrFileInput');
+  var ocrUploadZone = document.getElementById('ocrUploadZone');
+  var ocrPreviewArea = document.getElementById('ocrPreviewArea');
+  var ocrPreviewImg = document.getElementById('ocrPreviewImg');
+  var ocrScanning = document.getElementById('ocrScanning');
+  var ocrResultCard = document.getElementById('ocrResultCard');
+  var ocrResultGrid = document.getElementById('ocrResultGrid');
+
+  function handleOcrFile(file) {
+    if (!file || !file.type.match(/^image\/(jpeg|png)$/)) {
+      window.showToast('请选择 JPG 或 PNG 格式的图片', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      window.showToast('图片大小不能超过 5MB', 'error');
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      ocrPreviewImg.src = e.target.result;
+      // 显示预览区，隐藏上传区
+      ocrUploadZone.style.display = 'none';
+      ocrPreviewArea.classList.add('show');
+      ocrScanning.style.display = 'flex';
+      ocrResultCard.classList.remove('show');
+
+      // 模拟OCR识别延迟
+      setTimeout(function () {
+        ocrScanning.style.display = 'none';
+        showOcrResult();
+      }, 2000);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showOcrResult() {
+    var items = [
+      { label: '统一社会信用代码', value: ocrData.creditCode },
+      { label: '公司名称', value: ocrData.companyName },
+      { label: '法定代表人', value: ocrData.legalPerson },
+      { label: '注册资本', value: ocrData.registeredCapital },
+      { label: '成立日期', value: ocrData.establishedDate },
+      { label: '经营范围', value: ocrData.businessScope, full: true }
+    ];
+    var html = '';
+    items.forEach(function (item) {
+      var cls = 'ocr-result-item' + (item.full ? ' full-width' : '');
+      html += '<div class="' + cls + '"><span class="ocr-label">' + item.label + '</span><span class="ocr-value">' + item.value + '</span></div>';
+    });
+    ocrResultGrid.innerHTML = html;
+    ocrResultCard.classList.add('show');
+  }
+
+  ocrFileInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      handleOcrFile(this.files[0]);
+    }
+  });
+
+  // 拖拽支持
+  ocrUploadZone.addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = '#1677ff'; });
+  ocrUploadZone.addEventListener('dragleave', function () { this.style.borderColor = '#d9d9d9'; });
+  ocrUploadZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    this.style.borderColor = '#d9d9d9';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleOcrFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  document.getElementById('ocrReupload').addEventListener('click', function () {
+    ocrUploadZone.style.display = '';
+    ocrPreviewArea.classList.remove('show');
+    ocrResultCard.classList.remove('show');
+    ocrPreviewImg.src = '';
+    ocrFileInput.value = '';
+  });
+
+  document.getElementById('ocrFillBtn').addEventListener('click', function () {
+    document.getElementById('infoCompany').value = ocrData.companyName;
+    document.getElementById('infoCreditCode').value = ocrData.creditCode;
+    document.getElementById('infoLegalPerson').value = ocrData.legalPerson;
+    window.showToast('营业执照信息已填充到表单，请核对后保存', 'success');
+  });
+
+  // ===== 修改密码（两步流程：短信验证 → 设置新密码） =====
+  var pwdStep = 1;
+  var pwdSmsTimer = null;
+  var pwdSmsCountdown = 0;
+
+  function setPwdStep(step) {
+    pwdStep = step;
+    // 更新步骤条
+    document.querySelectorAll('#pwdSteps .pwd-step').forEach(function (el) {
+      var s = parseInt(el.getAttribute('data-pwd-step'));
+      el.classList.remove('current', 'done');
+      if (s < step) el.classList.add('done');
+      if (s === step) el.classList.add('current');
+    });
+    document.querySelectorAll('#pwdSteps .pwd-step-line').forEach(function (el) {
+      var s = parseInt(el.getAttribute('data-pwd-line'));
+      el.classList.toggle('done', s < step);
+    });
+    // 切换面板
+    ['pwdPanel1', 'pwdPanel2'].forEach(function (id, i) {
+      document.getElementById(id).classList.toggle('active', (i + 1) === step);
+    });
+    // 预填手机号
+    if (step === 1) {
+      document.getElementById('pwdPhoneDisplay').textContent = merchant.phone || '--';
+    }
+  }
+
+  // 步骤1 → 2
+  document.getElementById('btnPwdVerify').addEventListener('click', function () {
+    var smsCode = document.getElementById('pwdSmsCode').value.trim();
+    var errEl = document.getElementById('pwdSmsError');
+    errEl.style.display = 'none';
+
+    if (smsCode !== '123456') {
+      errEl.textContent = '验证码错误（演示用：123456）';
+      errEl.style.display = 'block';
+      return;
+    }
+    setPwdStep(2);
+  });
+
+  // 步骤2 → 修改
   document.getElementById('btnChangePwd').addEventListener('click', function () {
-    var oldPwd = document.getElementById('pwdOld').value;
     var newPwd = document.getElementById('pwdNew').value;
     var confirmPwd = document.getElementById('pwdConfirm').value;
+    var errEl1 = document.getElementById('pwdNewError');
+    var errEl2 = document.getElementById('pwdConfirmError');
+    errEl1.style.display = 'none';
+    errEl2.style.display = 'none';
 
-    if (!oldPwd) { window.showToast('请输入旧密码', 'error'); return; }
-    if (!newPwd) { window.showToast('请输入新密码', 'error'); return; }
-    if (newPwd.length < 6 || newPwd.length > 20) { window.showToast('新密码长度需为6-20位', 'error'); return; }
-    if (newPwd !== confirmPwd) { window.showToast('两次输入的新密码不一致', 'error'); return; }
-    if (oldPwd === newPwd) { window.showToast('新密码不能与旧密码相同', 'error'); return; }
+    if (!newPwd) {
+      errEl1.textContent = '请输入新密码';
+      errEl1.style.display = 'block';
+      return;
+    }
+    if (newPwd.length < 6 || newPwd.length > 20) {
+      errEl1.textContent = '新密码长度需为6-20位';
+      errEl1.style.display = 'block';
+      return;
+    }
+    if (!/[a-zA-Z]/.test(newPwd) || !/\d/.test(newPwd)) {
+      errEl1.textContent = '密码需包含字母和数字';
+      errEl1.style.display = 'block';
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      errEl2.textContent = '两次输入的新密码不一致';
+      errEl2.style.display = 'block';
+      return;
+    }
 
-    // Demo模拟成功
     window.showToast('密码修改成功，请重新登录', 'success');
-    document.getElementById('pwdOld').value = '';
+    // 重置表单
+    document.getElementById('pwdSmsCode').value = '';
     document.getElementById('pwdNew').value = '';
     document.getElementById('pwdConfirm').value = '';
+    setPwdStep(1);
+  });
+
+  // 返回上一步
+  document.getElementById('btnPwdBack').addEventListener('click', function () { setPwdStep(1); });
+
+  // 发送验证码
+  document.getElementById('btnPwdSms').addEventListener('click', function () {
+    if (pwdSmsCountdown > 0) return;
+    pwdSmsCountdown = 60;
+    var btn = document.getElementById('btnPwdSms');
+    btn.disabled = true;
+    btn.textContent = pwdSmsCountdown + 's后重发';
+    pwdSmsTimer = setInterval(function () {
+      pwdSmsCountdown--;
+      if (pwdSmsCountdown <= 0) {
+        clearInterval(pwdSmsTimer);
+        btn.disabled = false;
+        btn.textContent = '获取验证码';
+      } else {
+        btn.textContent = pwdSmsCountdown + 's后重发';
+      }
+    }, 1000);
+    window.showToast('验证码已发送（演示用：123456）', 'info');
   });
 
   // ===== 操作日志 =====
@@ -235,23 +551,42 @@
   });
 
   // ===== Tab切换 =====
-  var tabs = { info: document.getElementById('tabInfo'), pwd: document.getElementById('tabPwd'), log: document.getElementById('tabLog') };
+  var tabs = {
+    user: document.getElementById('tabUser'),
+    info: document.getElementById('tabInfo'),
+    pwd: document.getElementById('tabPwd'),
+    log: document.getElementById('tabLog')
+  };
+
   document.getElementById('accountTabs').addEventListener('click', function (e) {
     var tab = e.target.closest('.tab-item');
     if (!tab) return;
     var key = tab.getAttribute('data-tab');
-    // 切换active
     document.querySelectorAll('#accountTabs .tab-item').forEach(function (t) { t.classList.remove('active'); });
     tab.classList.add('active');
-    // 切换内容
     Object.keys(tabs).forEach(function (k) { tabs[k].style.display = k === key ? 'block' : 'none'; });
-    // 首次切换到日志时渲染
     if (key === 'log' && !document.getElementById('logTableBody').innerHTML) {
       renderLogs();
     }
   });
 
+  // ===== 外部Tab预选（来自侧边栏菜单点击） =====
+  var preTab = window.__pageTab;
+  if (preTab) {
+    var tabEl = document.querySelector('#accountTabs .tab-item[data-tab="' + preTab + '"]');
+    if (tabEl) {
+      // 切换到目标Tab
+      document.querySelectorAll('#accountTabs .tab-item').forEach(function (t) { t.classList.remove('active'); });
+      tabEl.classList.add('active');
+      Object.keys(tabs).forEach(function (k) { tabs[k].style.display = k === preTab ? 'block' : 'none'; });
+      if (preTab === 'log') renderLogs();
+      if (preTab === 'pwd') setPwdStep(1);
+    }
+    window.__pageTab = null;
+  }
+
   // 初始化
+  loadUserInfo();
   loadInfo();
 })();
 </script>

@@ -34,7 +34,8 @@ h5-demo/
 │   ├── miniprogram-list-empty.html ← C02 小程序列表（空状态）
 │   ├── reports-list.html   ← C05 日报列表 + 详情抽屉
 │   ├── account.html        ← C06 账号设置（企业信息/密码/日志三Tab）
-│   └── login.html          ← 登录页
+│   └── login.html          ← 登录页（G01 功能规格参考页）
+├── login.html              ← G01 独立登录页（扫码登录+账号密码+注册+密码重置）
 └── images/
     ├── login.jpeg
     ├── 收入流转图.jpg
@@ -162,6 +163,20 @@ h5-demo/
 | 页面HTML + 弹窗 | [pages/activity-list.html](pages/activity-list.html) |
 | 普通活动+第三方活动Tab | 逻辑内嵌 `<script>` → `window.__initActivityList(tab)` |
 | 样式 | `index.html` → `<style>` 中 `.act-list-*` / `.tpa-list-*` 类 |
+
+### G01 用户登录注册
+
+| 改什么 | 去哪儿改 |
+|--------|----------|
+| 独立登录页（完整功能） | [login.html](login.html) — 扫码登录+账号密码+注册+密码重置 |
+| 登录页规格参考（壳内） | [pages/login.html](pages/login.html) — 用户路径图+接口清单+业务规则 |
+| 菜单入口 | [js/nav.js](js/nav.js) → g06 菜单组 |
+| Demo会话管理 | [login.html](login.html) → localStorage `__demoSession` / `__demoUser` |
+| 功能规格文档 | [001功能文档/B01_用户登录注册（0526）.md](../001功能文档/B01_用户登录注册（0526）.md) |
+
+> **注意**：独立登录页 `login.html` 不经过 index.html 壳，直接浏览器打开。扫码登录需公众号appid和密钥（待补充）。
+>
+> **Demo测试账号**：`13800008888` / `Abc12345` 或 `13912345678` / `Test1234`，也可通过注册表单创建新账号。验证码统一使用 `123456`。
 
 ### 全局（菜单/导航/Toast/Mock数据）
 
