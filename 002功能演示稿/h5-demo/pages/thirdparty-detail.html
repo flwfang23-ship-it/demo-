@@ -1,0 +1,336 @@
+<style>
+  .tpa-detail-page { padding: 0; }
+  .tpa-default-section {
+    background: #f4f8ff;
+    border: 1px solid #c6e2ff;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  .tpa-default-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #303133;
+    margin-bottom: 10px;
+  }
+  .tpa-default-path-display {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #fff;
+    border-radius: 4px;
+    border: 1px dashed #dcdfe6;
+    word-break: break-all;
+  }
+  .tpa-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid #ebeef5;
+    border-bottom: 1px solid #ebeef5;
+    margin-bottom: 16px;
+  }
+  .tpa-toggle-text {
+    font-size: 13px;
+    color: #606266;
+  }
+  .tpa-unified-notice {
+    font-size: 13px;
+    color: #909399;
+    padding: 12px 16px;
+    background: #f5f7fa;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .tpa-fallback-hint {
+    display: block;
+    font-size: 11px;
+    color: #909399;
+    margin-top: 2px;
+  }
+</style>
+
+<div class="page-container tpa-detail-page">
+  <div class="tpa-detail-header">
+    <button class="tpa-detail-back" id="tpaDetailBack">&larr; 返回活动清单</button>
+    <h2 class="tpa-detail-title" id="tpaDetailName">花小猪打车</h2>
+  </div>
+
+  <div class="tpa-detail-appid">
+    <span class="tpa-appid-label">AppID：</span>
+    <code class="tpa-appid-value" id="tpaDetailAppId">wx_hxz_2024_001</code>
+    <button class="btn btn-sm btn-copy-appid" id="btnCopyAppId">📄 复制</button>
+  </div>
+
+  <!-- 路径配置卡片 -->
+  <div class="tpa-config-card">
+    <div class="tpa-card-header">
+      <div class="tpa-card-title">
+        <span class="tpa-card-icon">⚙</span>
+        <span>推广路径配置</span>
+      </div>
+    </div>
+
+    <div class="tpa-card-body">
+      <!-- 默认推广位路径 — 始终可见 -->
+      <div class="tpa-default-section">
+        <div class="tpa-default-label">默认推广位路径</div>
+        <div class="tpa-input-wrapper">
+          <input type="text" class="input-field" id="tpaDefaultPath" placeholder="请输入默认推广位路径">
+          <button class="btn btn-primary" id="btnSaveDefault">保存</button>
+        </div>
+        <div class="tpa-default-path-display" id="tpaDefaultPathDisplay" style="display:none;"></div>
+      </div>
+
+      <!-- 开关 -->
+      <div class="tpa-toggle-row">
+        <span class="tpa-toggle-text">允许各推广位单独编辑路径</span>
+        <label class="switch">
+          <input type="checkbox" id="tpaUnifiedToggle">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <!-- 统一模式提示：所有推广位与默认一致 -->
+      <div class="tpa-unified-notice" id="tpaUnifiedNotice">
+        配置为空，则系统会自动读默认推广位的链接。
+      </div>
+
+      <!-- 按推广位编辑表格：开关关闭后显示 -->
+      <div id="tpaDetailTable" style="display:none;">
+        <table class="tpa-custom-table">
+          <thead>
+            <tr>
+              <th style="width:20%;">推广位名称</th>
+              <th style="width:60%;">小程序路径</th>
+              <th style="width:20%;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tpaPathBody"></tbody>
+        </table>
+
+        <div class="tpa-table-actions">
+          <button class="btn btn-primary" id="btnSaveAll">一键保存全部</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var tpaId = null;
+  var currentActivity = null;
+
+  function init() {
+    tpaId = sessionStorage.getItem('tpaDetailId');
+    if (!tpaId) {
+      window.showToast('未找到活动信息', 'error');
+      return;
+    }
+
+    var tpaList = window.MockData.thirdPartyActivities || [];
+    currentActivity = tpaList.find(function (a) { return a.id === tpaId; });
+    if (!currentActivity) {
+      window.showToast('活动不存在', 'error');
+      return;
+    }
+
+    renderHeader();
+    renderByMode();
+    bindEvents();
+  }
+
+  function renderHeader() {
+    document.getElementById('tpaDetailName').textContent = currentActivity.name;
+    document.getElementById('tpaDetailAppId').textContent = currentActivity.appId;
+  }
+
+  function getUseUnified() {
+    return !currentActivity.hasOwnProperty('allowIndividualEdit')
+      ? false
+      : !currentActivity.allowIndividualEdit;
+  }
+
+  function getDefaultPath() {
+    return currentActivity.defaultPath || '';
+  }
+
+  function updateDefaultPathDisplay() {
+    var dp = getDefaultPath();
+    var displayEl = document.getElementById('tpaDefaultPathDisplay');
+    if (dp) {
+      displayEl.textContent = '当前默认路径：' + dp;
+      displayEl.style.display = '';
+    } else {
+      displayEl.textContent = '暂未设置默认推广位路径，各推广位路径将为空';
+      displayEl.style.display = '';
+    }
+  }
+
+  function renderByMode() {
+    var unified = getUseUnified();
+    var dp = getDefaultPath();
+
+    document.getElementById('tpaUnifiedToggle').checked = !unified;
+    document.getElementById('tpaDefaultPath').value = dp;
+    updateDefaultPathDisplay();
+
+    document.getElementById('tpaUnifiedNotice').style.display = unified ? '' : 'none';
+    document.getElementById('tpaDetailTable').style.display = unified ? 'none' : '';
+
+    if (!unified) {
+      renderPathTable();
+    }
+  }
+
+  function renderPathTable() {
+    var tbody = document.getElementById('tpaPathBody');
+    var promos = (window.MockData.getAllPromotions ? window.MockData.getAllPromotions() : (window.MockData.promotions || []));
+    var defaultPath = getDefaultPath();
+
+    if (promos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#909399;padding:40px;">暂无推广位数据</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = promos.map(function (p) {
+      var currentPath = (currentActivity.promoPaths && currentActivity.promoPaths[p.id]) || '';
+      var isFallback = !currentPath.trim();
+      var placeholderText = defaultPath ? '留空则使用默认：' + defaultPath : '请输入小程序路径';
+      var fallbackHint = isFallback && defaultPath ? '<span class="tpa-fallback-hint">将使用默认路径：' + escHtml(defaultPath) + '</span>' : '';
+      return '' +
+        '<tr>' +
+          '<td class="tpa-cell-name"><span class="tpa-dot">·</span> ' + p.name + '</td>' +
+          '<td>' +
+            '<input type="text" class="input-field" data-promo-id="' + p.id + '" value="' + escHtml(currentPath) + '" placeholder="' + escHtml(placeholderText) + '">' +
+            fallbackHint +
+          '</td>' +
+          '<td><button class="btn btn-primary btn-sm btn-save-path" data-promo-id="' + p.id + '">保存</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function bindEvents() {
+    document.getElementById('tpaDetailBack').addEventListener('click', function () {
+      window.AppNav.navigateTo('activity-list-other');
+    });
+
+    // 复制AppID
+    document.getElementById('btnCopyAppId').addEventListener('click', function () {
+      var appId = currentActivity.appId;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(appId).then(function () {
+          window.showToast('AppID 已复制', 'success');
+        }).catch(function () {
+          fallbackCopy(appId);
+        });
+      } else {
+        fallbackCopy(appId);
+      }
+    });
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); window.showToast('AppID 已复制', 'success'); } catch (e) { window.showToast('复制失败，请手动复制', 'error'); }
+      document.body.removeChild(ta);
+    }
+
+    // 保存默认推广位路径
+    document.getElementById('btnSaveDefault').addEventListener('click', function () {
+      var path = document.getElementById('tpaDefaultPath').value.trim();
+      currentActivity.defaultPath = path;
+      updateDefaultPathDisplay();
+      window.showToast('默认推广位路径已保存', 'success');
+
+      // 如果正在展示推广位表格，刷新以更新占位提示
+      if (!getUseUnified()) {
+        renderPathTable();
+        rebindTableEvents();
+      }
+    });
+
+    // 开关：是否允许各推广位单独编辑
+    document.getElementById('tpaUnifiedToggle').addEventListener('change', function () {
+      var allowIndividual = this.checked;
+      currentActivity.allowIndividualEdit = allowIndividual;
+
+      if (!allowIndividual) {
+        // 关闭独立编辑 → 回到统一模式：清掉所有独立路径，全部回退到默认
+        currentActivity.promoPaths = {};
+      }
+
+      renderByMode();
+      if (allowIndividual) {
+        rebindTableEvents();
+      }
+    });
+
+    // 行级保存 + 一键保存全部 通过事件代理绑定
+    rebindTableEvents();
+  }
+
+  function rebindTableEvents() {
+    // 行级保存
+    var tbody = document.getElementById('tpaPathBody');
+    if (!tbody) return;
+
+    tbody.removeEventListener('click', onTableClick);
+    tbody.addEventListener('click', onTableClick);
+
+    // 一键保存全部
+    var btnAll = document.getElementById('btnSaveAll');
+    if (btnAll) {
+      btnAll.removeEventListener('click', onSaveAll);
+      btnAll.addEventListener('click', onSaveAll);
+    }
+  }
+
+  function onTableClick(e) {
+    var btn = e.target.closest('.btn-save-path');
+    if (!btn) return;
+    var promoId = btn.getAttribute('data-promo-id');
+    var input = document.querySelector('.input-field[data-promo-id="' + promoId + '"]');
+    if (!input) return;
+    var path = input.value.trim();
+
+    if (!currentActivity.promoPaths) currentActivity.promoPaths = {};
+    currentActivity.promoPaths[promoId] = path;
+    window.showToast('保存成功', 'success');
+
+    // 刷新该行以更新回退提示
+    renderPathTable();
+    rebindTableEvents();
+  }
+
+  function onSaveAll() {
+    var inputs = document.querySelectorAll('#tpaPathBody .input-field');
+    var savedCount = 0;
+    if (!currentActivity.promoPaths) currentActivity.promoPaths = {};
+    inputs.forEach(function (input) {
+      var promoId = input.getAttribute('data-promo-id');
+      currentActivity.promoPaths[promoId] = input.value.trim();
+      savedCount++;
+    });
+    window.showToast('已保存 ' + savedCount + ' 条推广位路径', 'success');
+    renderPathTable();
+    rebindTableEvents();
+  }
+
+  init();
+})();
+</script>

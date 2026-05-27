@@ -1,0 +1,114 @@
+------饿了么----
+饿了么的键值对在link里面：
+ "data": {
+        "elemedata": {
+            "description": "闪购大额满减红包",
+            "end_time": "2028-05-11 23:59:59",
+            "id": "12688",
+            "link": {
+                "alipay_promotion": {},
+                "app_promotion": {},
+                "full_taobao_word": "67 HU7405  2:\/£nNqo5DUaUHe《三闪购大额满减红包",
+                "h5_promotion": {},
+                "taobao_promotion": {
+                    "h5_url": "https:\/\/market.m.taobao.com\/app\/starlink\/wakeup-transit\/pages\/download?star_id=8339&slk_force_set_request=true&tfPos=h5&alsc_exsrc=ES0007076172&scene=dfb000c8ddd34c05a1e80ad440559e28",
+                    "img_url": "https:\/\/union.elemecdn.com\/public\/mediaShare\/image\/202605268bde02cbb4a1476c8a1ea89f30132f73.jpg",
+                    "scheme_url": "tbopen:\/\/m.taobao.com\/tbopen\/index.html?&action=ali.open.nav&module=h5&h5Url=https%3A%2F%2Ftb.ele.me%2Fapp%2Falsc-user-growth%2Fsgyx%2Fhome%3Ftms_force%3Dtrue%26forceThemis%3Dtrue%26_wx_statusbar_hidden%3Dtrue%26wx_navbar_hidden%3Dtrue%26disableNav%3DYES%26status_bar_transparent%3Dtrue%26isTab%3Dfalse%26from%3Dminiapp.taobao%26channelInfo%3D%257B%2522channel%2522%253A%2522miniapp%2522%252C%2522subChannel%2522%253A%2522miniapp.taobao%2522%252C%2522subSubChannel%2522%253A%2522miniapp.taobao.et%2522%257D%26page_name%3Dsgyx%26tfPos%3Dh5%26afc_tms_weex%3Dtrue%26afc_weex_min_appver%3D10.49.5%26bc_fl_src%3Dele_sgyx%26forbidRefineType%3DgoOut%26alsc_exsrc%3DES0007076172%26scene%3Ddfb000c8ddd34c05a1e80ad440559e28%26o2i_1st_clk%3D__CLICK_ID__",
+                    "tb_qr_code": "https:\/\/union.elemecdn.com\/public\/mediaShare\/qrcode\/20260526687f28e75b8d45be954c46b298aff8ff.jpg",
+                    "tb_watchword": "￥nNqo5DUaUHe￥\/ HU7405",
+                    "tb_watchword_suggest": "67 HU7405  2:\/£nNqo5DUaUHe《三闪购大额满减红包"
+                },
+                "taobao_word": "￥nNqo5DUaUHe￥\/ HU7405",
+                "tb_mini_qrcode": "https:\/\/union.elemecdn.com\/public\/mediaShare\/qrcode\/20260526687f28e75b8d45be954c46b298aff8ff.jpg",
+                "tb_qr_code": "https:\/\/union.elemecdn.com\/public\/mediaShare\/image\/202605268bde02cbb4a1476c8a1ea89f30132f73.jpg",
+                "tb_scheme_url": "tbopen:\/\/m.taobao.com\/tbopen\/index.html?&action=ali.open.nav&module=h5&h5Url=https%3A%2F%2Ftb.ele.me%2Fapp%2Falsc-user-growth%2Fsgyx%2Fhome%3Ftms_force%3Dtrue%26forceThemis%3Dtrue%26_wx_statusbar_hidden%3Dtrue%26wx_navbar_hidden%3Dtrue%26disableNav%3DYES%26status_bar_transparent%3Dtrue%26isTab%3Dfalse%26from%3Dminiapp.taobao%26channelInfo%3D%257B%2522channel%2522%253A%2522miniapp%2522%252C%2522subChannel%2522%253A%2522miniapp.taobao%2522%252C%2522subSubChannel%2522%253A%2522miniapp.taobao.et%2522%257D%26page_name%3Dsgyx%26tfPos%3Dh5%26afc_tms_weex%3Dtrue%26afc_weex_min_appver%3D10.49.5%26bc_fl_src%3Dele_sgyx%26forbidRefineType%3DgoOut%26alsc_exsrc%3DES0007076172%26scene%3Ddfb000c8ddd34c05a1e80ad440559e28%26o2i_1st_clk%3D__CLICK_ID__",
+                "wx_promotion": {}
+            },
+            "picture": "https:\/\/union.elemecdn.com\/public\/activityMaterial\/2025110184eb8306f25244cfb3c79814d79309e3.jpg",
+            "start_time": "2025-05-18 00:00:00",
+            "title": "来闪购一下 可赢免单福利"
+        },
+        "meitundata": [],
+        "channels": {
+            "id": 297,
+            "supplier_id": 5,
+            "promotion_id": "YC-5-33",
+            "channels_name": "线报特工-朋友圈",
+            "is_del": 0,
+            "is_use": 1,
+            "remark": "",
+            "add_time": 1778235339,
+            "create_type": 2,
+            "channels_type": 1,
+            "_supplier_id": "言成科技",
+            "adminLabelRelation": 47
+        },
+        "activity": {
+            "id": 23,
+            "activity_name": "淘宝闪购-闪购一下",
+            "subtitle_name": "闪购大额满减红包",
+            "types": 1,
+            "activity_id": "12688",
+            "commission_type": 1,
+            "commission": "预估佣金6%",
+            "effective_time": "2025-05-18",
+            "failure_time": "2028-05-11",
+            "activity_img": "https:\/\/sc-cdn.oss-cn-shenzhen.aliyuncs.com\/attach\/2025\/06\/be0ad202506121731025974.png",
+            "venue_rules": "1.会场权限：淘宝闪购和淘宝闪购-新客专享，活动页面的订单（从饿了么天天领红包、饿了么叠红包、消费日等会场引流过去的不算）；\n2.激励佣金：会场内老客订单0.5元\/单，新客订单1元\/单（新用户定义为首次在淘宝闪购页面下单的用户）；\n3.激励时间：即日起至6.30",
+            "status": 1,
+            "del_time": 0,
+            "sort": 200,
+            "add_time": 1749722041,
+            "update_time": 1765865333
+        }
+    }
+
+
+---美团---
+"data": {
+        "elemedata": [],
+        "meitundata": {
+            "referralLinkMap": {
+                "1": "https:\/\/click.meituan.com\/t?t=1&c=2&p=FTNY7bxz1fzy",
+                "2": "http:\/\/dpurl.cn\/QXwMH4Nz",
+                "3": "imeituan:\/\/www.meituan.com\/takeout\/browser?inner_url=https%3A%2F%2Fclick.meituan.com%2Ft%3Ft%3D1%26c%3D2%26p%3Dbx5Y7bxzFKdT&lch=cps:mtlm:10:2b7dd1d3ca8a4250ae8e53cd54657aaa:yc5channelid297num34:7:1805416527446155331",
+                "4": "\/index\/pages\/h5\/h5?weburl=https%3A%2F%2Fclick.meituan.com%2Ft%3Ft%3D1%26c%3D2%26p%3DHZlE7bxzOx15&f_token=0&f_userId=0&f_openId=0&f_openIdCipher=0&f_pos=1&f_ci=1&app_version=1",
+                "5": "1来美团，吃得更好，生活更好❤️复制整条信息，打开👉美团👈 http:\/💰g4YmE2MWM5Njg💰 ",
+                "6": "http:\/\/p0.meituan.net\/marketingcpsmedia\/aedabb7999619ff04e61979595541b4b20684.jpg"
+            }
+        },
+        "channels": {
+            "id": 297,
+            "supplier_id": 5,
+            "promotion_id": "YC-5-33",
+            "channels_name": "线报特工-朋友圈",
+            "is_del": 0,
+            "is_use": 1,
+            "remark": "",
+            "add_time": 1778235339,
+            "create_type": 2,
+            "channels_type": 1,
+            "_supplier_id": "言成科技",
+            "adminLabelRelation": 47
+        },
+        "activity": {
+            "id": 32,
+            "activity_name": "美团外卖节",
+            "subtitle_name": "美团外卖节，帮你吃更好",
+            "types": 2,
+            "activity_id": "7",
+            "commission_type": 0,
+            "commission": "预估收入比率3%",
+            "effective_time": "2024-12-25",
+            "failure_time": "2025-12-31",
+            "activity_img": "https:\/\/sc-cdn.oss-cn-shenzhen.aliyuncs.com\/attach\/2025\/08\/7e4a8202508131340372391.jpg",
+            "venue_rules": "【活动时间】2025年8月13日00:00:00-23:59:59\n\n【供给范围】仅外卖品类订单参与（不含外卖神抢手商品兑换券），其它类目订单不计入奖励\n\n【媒体范围】全量媒体，自动报名\n\n【核销周期】2025年8月13日00:00:00至2025年8月20日23:59:59\n\n【活动玩法】按照活动期间有效核销订单数达成情况，实行阶梯激励，若同时满足多个阶梯，则按照已达成的最高阶梯奖励，奖励不叠加。\n\n【有效核销订单】支付时间在活动周期内且订单核销时间在核销周期内的订单。",
+            "status": 1,
+            "del_time": 0,
+            "sort": 91,
+            "add_time": 1755065542,
+            "update_time": 1756797928
+        }
+    }
+
+备注：美团的1、2、3、4、5是对应短链接、长连接、唤起协议、小程序路径、小程序二维码、团口令
